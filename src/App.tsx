@@ -32,7 +32,7 @@ import NotFound from './pages/NotFound';
 const App: React.FC = () => {
   return (
     <AppProvider>
-      <Router>
+      <Router basename="/LogicGate">
         <IntersectObserver />
         <Routes>
           {/* Public */}

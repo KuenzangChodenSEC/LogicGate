@@ -4,27 +4,32 @@ import svgr from "vite-plugin-svgr";
 import path from "path";
 
 export default defineConfig({
-  plugins: [ 
-    react(), 
-    svgr({ svgrOptions: { 
-      icon: true, 
-      exportType: "named", 
-      namedExport: "ReactComponent", 
-    }, 
-  }), 
-],
+  base: "/LogicGate/",
+
+  plugins: [
+    react(),
+    svgr({
+      svgrOptions: {
+        icon: true,
+        exportType: "named",
+        namedExport: "ReactComponent",
+      },
+    }),
+  ],
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+
   optimizeDeps: {
-    include: [ 
-      "react", 
-      "react-dom", 
-      "react-dom/client", 
-      "react/jsx-runtime", 
-      "react/jsx-dev-runtime", 
+    include: [
+      "react",
+      "react-dom",
+      "react-dom/client",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
     ],
   },
 });
