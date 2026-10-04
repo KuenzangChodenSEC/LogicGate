@@ -98,6 +98,7 @@
 @layer components {
   .card-base, .pixel-card {
     @apply bg-card border shadow-sm;
+    transition: transform 260ms cubic-bezier(.22,1,.36,1), box-shadow 260ms cubic-bezier(.22,1,.36,1), border-color 220ms ease;
     border-color: hsl(var(--border));
     border-radius: 0.85rem;
     position: relative;
@@ -112,10 +113,10 @@
     background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary)));
     opacity: .9;
   }
-  .card-base:hover, .pixel-card:hover { box-shadow: 0 14px 30px rgba(92,44,28,.13); transition: .2s ease; }
+  .card-base:hover, .pixel-card:hover { box-shadow: 0 14px 30px rgba(92,44,28,.13); transform: translateY(-2px); }
 
   .pixel-btn {
-    @apply inline-flex items-center justify-center font-medium border px-4 py-2 text-sm cursor-pointer select-none transition-all;
+    @apply inline-flex items-center justify-center font-medium border px-4 py-2 text-sm cursor-pointer select-none transition-all duration-200 ease-out;
     border-radius: .55rem;
     border-color: hsl(var(--border));
     background: hsl(var(--card));
@@ -123,7 +124,7 @@
   .pixel-btn:hover { background: hsl(var(--secondary)); transform: translateY(-1px); }
 
   .pixel-btn-primary {
-    @apply inline-flex items-center justify-center font-semibold px-4 py-2 text-sm cursor-pointer select-none transition-all;
+    @apply inline-flex items-center justify-center font-semibold px-4 py-2 text-sm cursor-pointer select-none transition-all duration-200 ease-out;
     border-radius: .55rem;
     color: hsl(var(--primary-foreground));
     background: linear-gradient(135deg, hsl(var(--primary)), hsl(5 62% 25%));
@@ -131,8 +132,8 @@
   }
   .pixel-btn-primary:hover { transform: translateY(-1px); filter: brightness(1.06); }
 
-  .pixel-btn-secondary { @apply inline-flex items-center justify-center font-medium border px-4 py-2 text-sm cursor-pointer select-none transition-all; border-radius:.55rem; background:hsl(var(--secondary)); }
-  .pixel-btn-accent { @apply inline-flex items-center justify-center font-semibold px-4 py-2 text-sm cursor-pointer select-none transition-all; border-radius:.55rem; background:hsl(var(--accent)); color:hsl(var(--accent-foreground)); }
+  .pixel-btn-secondary { @apply inline-flex items-center justify-center font-medium border px-4 py-2 text-sm cursor-pointer select-none transition-all duration-200 ease-out; border-radius:.55rem; background:hsl(var(--secondary)); }
+  .pixel-btn-accent { @apply inline-flex items-center justify-center font-semibold px-4 py-2 text-sm cursor-pointer select-none transition-all duration-200 ease-out; border-radius:.55rem; background:hsl(var(--accent)); color:hsl(var(--accent-foreground)); }
 
   .pixel-input {
     @apply w-full px-3 py-2 text-sm outline-none;
@@ -160,6 +161,7 @@
   }
 
   .nav-link-active { background:hsl(var(--accent)/.18); color:hsl(var(--accent)); font-weight:600; }
+  .smooth-transition { transition: all 260ms cubic-bezier(.22,1,.36,1); }
   .gate-symbol { @apply flex items-center justify-center border rounded-md; background:hsl(var(--card)); border-color:hsl(var(--border)); width:80px; height:60px; }
   .star-filled { color:hsl(var(--warning)); }
   .star-empty { color:hsl(var(--muted-foreground)); }
@@ -184,7 +186,13 @@
   ::-webkit-scrollbar-thumb { background:hsl(var(--primary)); border-radius:4px; }
 
   @keyframes fade-in-up { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-  .animate-pixel-fade { animation: fade-in-up .35s ease-out both; }
+  .animate-pixel-fade { animation: fade-in-up .45s cubic-bezier(.22,1,.36,1) both; }
+  .page-transition > * { animation: fade-in-up .38s cubic-bezier(.22,1,.36,1) both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  }
   @keyframes badge-pop { 0%{transform:scale(.9);opacity:.7} 60%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
   .badge-earned { animation:badge-pop .4s ease-out; }
   .locked-overlay { @apply absolute inset-0 flex items-center justify-center rounded-lg; background:hsl(var(--background)/.72); backdrop-filter:blur(2px); }

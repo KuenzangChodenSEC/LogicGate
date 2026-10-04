@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { updateUser, createNewUser, GATE_TOPICS } from '@/lib/storage';
+import { updateUser, getPasswordRequirements, isStrongPassword } from '@/lib/storage';
 import { toast } from 'sonner';
 import { Moon, Sun, Volume2, VolumeX, RotateCcw, Lock, AlertTriangle } from 'lucide-react';
 
@@ -41,8 +41,8 @@ export default function SettingsPage() {
       toast.error('Current password is incorrect.');
       return;
     }
-    if (newPw.length < 6) {
-      toast.error('New password must be at least 6 characters.');
+    if (!isStrongPassword(newPw)) {
+      toast.error('New password must be at least 8 characters and include uppercase, lowercase, a number, and a special character.');
       return;
     }
     if (newPw !== confirmPw) {
@@ -115,7 +115,7 @@ export default function SettingsPage() {
           <div className="space-y-3">
             {[
               { label: 'Current Password', val: currentPw, set: setCurrentPw, ph: 'Enter current password' },
-              { label: 'New Password', val: newPw, set: setNewPw, ph: 'Min 6 characters' },
+              { label: 'New Password', val: newPw, set: setNewPw, ph: 'At least 8 characters' },
               { label: 'Confirm New Password', val: confirmPw, set: setConfirmPw, ph: 'Repeat new password' },
             ].map(f => (
               <div key={f.label}>
@@ -124,6 +124,16 @@ export default function SettingsPage() {
                   onChange={e => f.set(e.target.value)} placeholder={f.ph} />
               </div>
             ))}
+            <div className="rounded-lg bg-muted/50 border border-border p-3 text-xs space-y-1.5">
+              <p className="font-semibold text-foreground mb-1">New password requirements:</p>
+              {([
+                ['length', 'At least 8 characters'], ['uppercase', '1 uppercase letter'], ['lowercase', '1 lowercase letter'], ['number', '1 number'], ['special', '1 special character'],
+              ] as const).map(([key, label]) => {
+                const valid = getPasswordRequirements(newPw)[key];
+                return <div key={key} className={`flex items-center gap-2 ${valid ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}><span>{valid ? '✓' : '○'}</span>{label}</div>;
+              })}
+            </div>
+
             <div className="flex gap-2 pt-1">
               <button onClick={handleChangePassword} className="pixel-btn-primary px-4 py-2 text-sm">Save</button>
               <button onClick={() => { setChangePwMode(false); setCurrentPw(''); setNewPw(''); setConfirmPw(''); }}

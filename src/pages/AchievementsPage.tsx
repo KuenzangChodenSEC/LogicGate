@@ -1,10 +1,9 @@
 
 import { useApp } from '@/contexts/AppContext';
-import { BADGE_DEFS, checkAndAwardBadges, updateUser } from '@/lib/storage';
-import { toast } from 'sonner';
+import { BADGE_DEFS } from '@/lib/storage';
 
 export default function AchievementsPage() {
-  const { user, refreshUser } = useApp();
+  const { user } = useApp();
   if (!user) return null;
 
   const earnedBadges = new Set(user.badges);
