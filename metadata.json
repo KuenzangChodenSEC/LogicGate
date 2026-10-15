@@ -1,0 +1,6 @@
+{
+  "name": "LogicLab",
+  "description": "Interactive digital logic gates and circuit simulator with visual lessons, truth tables, 40-level games, quizzes, and progress tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

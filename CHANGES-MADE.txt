@@ -1,0 +1,51 @@
+LogicGate refinement summary
+============================
+
+1) Removed the BUFFER logic gate
+- Removed it from the GateType definition, gate information, evaluation logic, truth-table/quiz data, tutorials, practice, simulator, gate details, circuit builder palette and all game challenge gate pools.
+- Removed the obsolete Gate Puzzle and Gate Sorter game source files and routes.
+
+2) Kept only four games
+- Truth Table Blitz (/games/blitz)
+- Logic Maze (/games/maze)
+- Bool Builder (/games/bool-builder)
+- Gate Match (/games/gate-match)
+- Updated the Games hub and Progress page game list to match.
+
+3) Added user-uploaded pictures
+- Added the supplied images to public/images.
+- Updated the site background and Home page image panels to use the supplied local images.
+- Added a supplied image to the How to Use page.
+
+4) Added game audio feedback
+- The existing Settings > Audio > Sound Effects option now triggers a short tone on game/app button interactions when enabled.
+- Audio is optional and failures are safely ignored.
+
+5) Circuit Builder save/load
+- Save now adds named circuits to a saved-circuits list instead of overwriting the only saved circuit.
+- Load saved opens a list of saved circuits and loads the selected circuit.
+- Preserves compatibility with the older single saved circuit field.
+- Refreshes the current user after saving so the list is updated immediately.
+
+6) How to use LogicLab
+- Added/kept the InstructionsPage and registered /instructions in App.tsx.
+- The Home page link to /instructions opens the step-by-step guide.
+
+7) Dark mode contrast
+- Improved dark-theme semantic color variables and added contrast safeguards for legacy white/light utility backgrounds, text, form fields and placeholders.
+
+8) Gate Match unused-variable warnings
+- Removed unused React/toast imports and unused score/start-time state.
+- Kept card flipping state through its setter only where appropriate.
+- LevelSelect now uses isLevelUnlocked with the current user and game ID, so sequential unlocking is enforced by the shared storage helper.
+- Difficulty is displayed on the results screen.
+
+Validation
+----------
+- TypeScript check passed using: tsc --noEmit -p tsconfig.check.json --ignoreDeprecations 5.0
+- A Vite production build could not be run in this environment because the supplied node_modules archive is missing Vite/Rolldown's optional native binding. This is an environment/dependency packaging issue, not a TypeScript error.
+
+Run locally
+-----------
+npm install
+npm run dev

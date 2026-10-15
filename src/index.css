@@ -1,0 +1,212 @@
+/* Bhutanese-inspired design system */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 38 48% 96%;
+    --foreground: 8 48% 18%;
+    --card: 42 45% 98%;
+    --card-foreground: 8 48% 18%;
+    --popover: 42 45% 98%;
+    --popover-foreground: 8 48% 18%;
+    --primary: 5 62% 31%;
+    --primary-foreground: 42 60% 97%;
+    --secondary: 42 38% 91%;
+    --secondary-foreground: 8 48% 18%;
+    --muted: 39 31% 91%;
+    --muted-foreground: 25 22% 40%;
+    --accent: 39 79% 48%;
+    --accent-foreground: 8 48% 14%;
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 33 28% 78%;
+    --input: 42 38% 94%;
+    --ring: 39 79% 48%;
+    --radius: 0.75rem;
+    --success: 146 38% 31%;
+    --warning: 39 79% 48%;
+    --info: 193 48% 36%;
+    --sidebar-background: 7 55% 18%;
+    --sidebar-foreground: 42 60% 96%;
+    --sidebar-primary: 39 79% 48%;
+    --sidebar-primary-foreground: 8 48% 14%;
+    --sidebar-accent: 7 47% 25%;
+    --sidebar-accent-foreground: 42 60% 96%;
+    --sidebar-border: 7 37% 31%;
+    --sidebar-ring: 39 79% 48%;
+    --chart-1: 5 62% 31%;
+    --chart-2: 39 79% 48%;
+    --chart-3: 146 38% 31%;
+    --chart-4: 193 48% 36%;
+    --chart-5: 31 62% 42%;
+  }
+
+  .dark {
+    --background: 8 34% 10%;
+    --foreground: 42 55% 94%;
+    --card: 8 28% 16%;
+    --card-foreground: 42 55% 94%;
+    --popover: 8 30% 14%;
+    --popover-foreground: 42 55% 94%;
+    --primary: 39 79% 52%;
+    --primary-foreground: 8 48% 14%;
+    --secondary: 8 24% 20%;
+    --secondary-foreground: 42 55% 94%;
+    --muted: 8 22% 20%;
+    --muted-foreground: 35 24% 78%;
+    --card-foreground: 42 60% 96%;
+    --popover-foreground: 42 60% 96%;
+    --secondary-foreground: 42 60% 94%;
+    --accent-foreground: 8 35% 8%;
+    --input: 8 22% 24%;
+    --accent: 146 38% 40%;
+    --accent-foreground: 42 55% 96%;
+    --border: 8 22% 28%;
+    --input: 8 22% 20%;
+    --ring: 39 79% 52%;
+    --sidebar-background: 7 58% 12%;
+    --sidebar-foreground: 42 55% 94%;
+    --sidebar-border: 7 40% 23%;
+  }
+
+  * { @apply border-border; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    min-height: 100vh;
+    background-image:
+      linear-gradient(rgba(250,247,239,.88), rgba(250,247,239,.94)),
+      url('/LogicGate/images/Bhutan.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+
+  .dark body {
+    background-image: linear-gradient(rgba(29,20,17,.94), rgba(29,20,17,.97)),
+      url('/LogicGate/images/Bhutan.webp');
+  }
+
+  h1,h2,h3,h4,h5,h6 { font-family: 'Inter', sans-serif; line-height: 1.25; letter-spacing: -0.015em; }
+  input, textarea, button { font-family: 'Inter', sans-serif; }
+}
+
+@layer components {
+  .card-base, .pixel-card {
+    @apply bg-card border shadow-sm;
+    transition: transform 260ms cubic-bezier(.22,1,.36,1), box-shadow 260ms cubic-bezier(.22,1,.36,1), border-color 220ms ease;
+    border-color: hsl(var(--border));
+    border-radius: 0.85rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(92, 44, 28, .08);
+  }
+  .card-base::before, .pixel-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary)));
+    opacity: .9;
+  }
+  .card-base:hover, .pixel-card:hover { box-shadow: 0 14px 30px rgba(92,44,28,.13); transform: translateY(-2px); }
+
+  .pixel-btn {
+    @apply inline-flex items-center justify-center font-medium border px-4 py-2 text-sm cursor-pointer select-none transition-all duration-200 ease-out;
+    border-radius: .55rem;
+    border-color: hsl(var(--border));
+    background: hsl(var(--card));
+  }
+  .pixel-btn:hover { background: hsl(var(--secondary)); transform: translateY(-1px); }
+
+  .pixel-btn-primary {
+    @apply inline-flex items-center justify-center font-semibold px-4 py-2 text-sm cursor-pointer select-none transition-all duration-200 ease-out;
+    border-radius: .55rem;
+    color: hsl(var(--primary-foreground));
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(5 62% 25%));
+    box-shadow: 0 6px 16px rgba(117,35,30,.18);
+  }
+  .pixel-btn-primary:hover { transform: translateY(-1px); filter: brightness(1.06); }
+
+  .pixel-btn-secondary { @apply inline-flex items-center justify-center font-medium border px-4 py-2 text-sm cursor-pointer select-none transition-all duration-200 ease-out; border-radius:.55rem; background:hsl(var(--secondary)); }
+  .pixel-btn-accent { @apply inline-flex items-center justify-center font-semibold px-4 py-2 text-sm cursor-pointer select-none transition-all duration-200 ease-out; border-radius:.55rem; background:hsl(var(--accent)); color:hsl(var(--accent-foreground)); }
+
+  .pixel-input {
+    @apply w-full px-3 py-2 text-sm outline-none;
+    border: 1px solid hsl(var(--border));
+    border-radius: .55rem;
+    background: rgba(255,255,255,.72);
+    color: hsl(var(--foreground));
+  }
+  .pixel-input:focus { border-color: hsl(var(--accent)); box-shadow: 0 0 0 3px hsl(var(--accent)/.16); }
+
+  .xp-pill { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background:hsl(var(--accent)/.15); color:hsl(var(--primary)); }
+  .pixel-progress { @apply overflow-hidden rounded-full; height:8px; background:hsl(var(--secondary)); }
+  .pixel-progress-fill { @apply h-full rounded-full; background:linear-gradient(90deg,hsl(var(--primary)),hsl(var(--accent))); transition:width .3s ease; }
+  .pixel-divider { @apply border-t my-4; border-color:hsl(var(--border)); }
+
+  .bhutan-pattern {
+    background-image:
+      linear-gradient(135deg, transparent 25%, rgba(176,126,45,.10) 25%, rgba(176,126,45,.10) 50%, transparent 50%, transparent 75%, rgba(176,126,45,.10) 75%);
+    background-size: 18px 18px;
+  }
+
+  .bhutan-frame {
+    border: 1px solid hsl(var(--border));
+    box-shadow: inset 0 0 0 4px hsl(var(--background)), inset 0 0 0 6px hsl(var(--accent)/.55);
+  }
+
+  .nav-link-active { background:hsl(var(--accent)/.18); color:hsl(var(--accent)); font-weight:600; }
+  .smooth-transition { transition: all 260ms cubic-bezier(.22,1,.36,1); }
+  .gate-symbol { @apply flex items-center justify-center border rounded-md; background:hsl(var(--card)); border-color:hsl(var(--border)); width:80px; height:60px; }
+  .star-filled { color:hsl(var(--warning)); }
+  .star-empty { color:hsl(var(--muted-foreground)); }
+
+  .bhutan-section {
+    position: relative;
+    isolation: isolate;
+  }
+  .bhutan-section::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 120px;
+    z-index: -1;
+    background: linear-gradient(to top, rgba(117,35,30,.07), transparent);
+    pointer-events: none;
+  }
+
+  * { scrollbar-width: thin; scrollbar-color: hsl(var(--primary)) transparent; }
+  ::-webkit-scrollbar { width:7px; height:7px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:hsl(var(--primary)); border-radius:4px; }
+
+  @keyframes fade-in-up { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .animate-pixel-fade { animation: fade-in-up .45s cubic-bezier(.22,1,.36,1) both; }
+  .page-transition > * { animation: fade-in-up .38s cubic-bezier(.22,1,.36,1) both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  }
+  @keyframes badge-pop { 0%{transform:scale(.9);opacity:.7} 60%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
+  .badge-earned { animation:badge-pop .4s ease-out; }
+  .locked-overlay { @apply absolute inset-0 flex items-center justify-center rounded-lg; background:hsl(var(--background)/.72); backdrop-filter:blur(2px); }
+}
+
+/* Dark-mode contrast guard: keep body copy and controls readable across legacy utility classes. */
+.dark body { color: hsl(var(--foreground)); }
+.dark .text-gray-900, .dark .text-gray-800, .dark .text-stone-900, .dark .text-slate-900 { color: hsl(var(--foreground)) !important; }
+.dark .bg-white, .dark .bg-gray-50, .dark .bg-stone-50 { background-color: hsl(var(--card)) !important; }
+.dark input, .dark textarea, .dark select { color: hsl(var(--foreground)); background-color: hsl(var(--input)); border-color: hsl(var(--border)); }
+.dark input::placeholder, .dark textarea::placeholder { color: hsl(var(--muted-foreground)); opacity: 1; }
+.dark .text-muted-foreground { color: hsl(var(--muted-foreground)); }
