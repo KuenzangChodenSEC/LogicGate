@@ -9,6 +9,7 @@ import { StarRating, DifficultyBadge } from '@/components/ui/PixelComponents';im
 import type { GateType } from '@/lib/gateData';
 import { ArrowLeft, LockKeyhole, CheckCircle2, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { playGameSound } from '@/lib/gameAudio';
 
 type Screen = 'levels' | 'playing' | 'results';
 
@@ -95,6 +96,7 @@ export default function GateMatchGame() {
     setCards(prev => {
       const [c1, c2] = ids.map(id => prev.find(c => c.id === id)!);
       if (c1 && c2 && c1.gateType === c2.gateType && c1.cardType !== c2.cardType) {
+        playGameSound('correct');
         const newPairs = matchedPairs + 1;
         setMatchedPairs(newPairs);
         const cfg = getGateMatchConfig(levelIdx + 1);
@@ -104,6 +106,7 @@ export default function GateMatchGame() {
         setCanFlip(true);
         return prev.map(c => ids.includes(c.id) ? { ...c, matched: true } : c);
       }
+      playGameSound('wrong');
       setCanFlip(true);
       return prev.map(c => ids.includes(c.id) ? { ...c, flipped: false } : c);
     });

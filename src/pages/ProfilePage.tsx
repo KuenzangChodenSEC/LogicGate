@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { updateUser } from '@/lib/storage';
 import { getLevelFromXP, BADGE_DEFS } from '@/lib/storage';
@@ -11,6 +11,7 @@ export default function ProfilePage() {
   const { user, logout, refreshUser } = useApp();
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState('');
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   if (!user) return null;
 
@@ -29,6 +30,34 @@ export default function ProfilePage() {
     setEditingName(false);
   }
 
+  function changeProfileImage(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please choose an image file.');
+      event.target.value = '';
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Please choose an image smaller than 2 MB.');
+      event.target.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== 'string') {
+        toast.error('Could not read that image. Please try another one.');
+        return;
+      }
+      updateUser({ ...user!, avatarImage: reader.result });
+      refreshUser();
+      toast.success('Profile picture updated!');
+    };
+    reader.onerror = () => toast.error('Could not read that image. Please try again.');
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
   function selectAvatar(idx: number) {
     updateUser({ ...user!, avatar: idx });
     refreshUser();
@@ -44,8 +73,10 @@ export default function ProfilePage() {
       {/* Avatar & name card */}
       <div className="pixel-card p-6 mb-4">
         <div className="flex items-start gap-5 flex-wrap">
-          <div className="text-5xl rounded-lg border-2 border-primary p-3 bg-primary/5 shrink-0">
-            {AVATARS[user.avatar] ?? '🤖'}
+          <div className="w-24 h-24 text-5xl rounded-lg border-2 border-primary bg-primary/5 shrink-0 overflow-hidden flex items-center justify-center">
+            {user.avatarImage
+              ? <img src={user.avatarImage} alt="Profile" className="w-full h-full object-cover" />
+              : (AVATARS[user.avatar] ?? '🤖')}
           </div>
           <div className="flex-1 min-w-0">
             <div className="mb-3">
@@ -88,9 +119,15 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Avatar selection */}
+      {/* Upload profile image from the device's file picker / gallery / album */}
       <div className="pixel-card p-5 mb-4">
-        <h3 className="font-semibold text-foreground text-sm mb-3">Select Avatar</h3>
+        <h3 className="font-semibold text-foreground text-sm mb-2">Change Profile Picture</h3>
+        <p className="text-muted-foreground text-xs mb-3">Choose an image from your computer, phone gallery, or photo album (maximum 2 MB).</p>
+        <input ref={imageInputRef} type="file" accept="image/*" onChange={changeProfileImage} className="hidden" />
+        <button onClick={() => imageInputRef.current?.click()} className="pixel-btn-primary px-4 py-2 rounded-lg text-sm mb-4">
+          Choose Image
+        </button>
+        <h3 className="font-semibold text-foreground text-sm mb-3">Or Select an Avatar</h3>
         <div className="flex gap-2 flex-wrap">
           {AVATARS.map((emoji, idx) => (
             <button key={idx} onClick={() => selectAvatar(idx)}

@@ -9,6 +9,7 @@ import { GateType, evaluateGate } from '@/lib/gateData';
 import { LevelSelect, ResultsScreen } from './GateMatchGame';
 import { DifficultyBadge } from '@/components/ui/PixelComponents';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
+import { playGameSound } from '@/lib/gameAudio';
 
 type Screen = 'levels' | 'playing' | 'results';
 
@@ -132,6 +133,7 @@ export default function BoolBuilderGame() {
     const att = attempts + 1;
     setAttempts(att);
     if (computed === challenge.targetOutput) {
+      playGameSound('correct');
       const s = att === 1 ? 3 : att === 2 ? 2 : 1;
       const sc = (4 - att) * 120;
       setStars(s);
@@ -139,6 +141,7 @@ export default function BoolBuilderGame() {
       setFeedback(`✓ Correct! Output = ${challenge.targetOutput} matches in ${att} attempt${att > 1 ? 's' : ''}!`);
       finishLevel(sc, s);
     } else {
+      playGameSound('wrong');
       setFeedback(`✗ Output was ${computed}, expected ${challenge.targetOutput}. Try different gates! (Attempt ${att})`);
     }
   }

@@ -153,6 +153,10 @@ export default function CircuitBuilderPage() {
   function clearCanvas() { setNodes([]); setConnecting(null); circuitBuilt.current = false; }
 
   function saveCircuit() {
+    if (nodes.length === 0) {
+      toast.error('The circuit builder is empty. Add components before saving.');
+      return;
+    }
     const latest = getCurrentUser();
     if (!latest) { toast.error('Please log in to save circuits.'); return; }
     const suggested = `Circuit ${((latest.circuitSaves || []).length) + 1}`;
@@ -168,9 +172,24 @@ export default function CircuitBuilderPage() {
   function loadCircuit(savedNodes?: string) {
     const latest = getCurrentUser();
     const data = savedNodes || latest?.circuitSave;
-    if (!data) { setShowSavedCircuits(true); return; }
+    if (!data) {
+      toast.error('The circuit builder is empty. There are no saved circuits to load.');
+      setShowSavedCircuits(true);
+      return;
+    }
     try { setNodes(JSON.parse(data)); setShowSavedCircuits(false); toast.success('Circuit loaded!'); }
     catch { toast.error('This saved circuit could not be loaded.'); }
+  }
+
+  function deleteCircuit(id: string) {
+    const latest = getCurrentUser();
+    if (!latest) { toast.error('Please log in to manage saved circuits.'); return; }
+    const circuitSaves = (latest.circuitSaves || []).filter(c => c.id !== id);
+    const deletedWasCurrent = id === 'legacy' || latest.circuitSaves?.find(c => c.id === id)?.nodes === latest.circuitSave;
+    const fallback = circuitSaves[circuitSaves.length - 1]?.nodes ?? null;
+    updateUser({ ...latest, circuitSaves, circuitSave: deletedWasCurrent ? fallback : latest.circuitSave });
+    refreshUser();
+    toast.success('Saved circuit deleted.');
   }
 
   const btnBase = 'px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors';
@@ -190,14 +209,14 @@ export default function CircuitBuilderPage() {
             </span>
           )}
           <button onClick={saveCircuit} className={`${btnBase} bg-primary text-primary-foreground border-primary hover:bg-primary/90`}>Save</button>
-          <button onClick={() => setShowSavedCircuits(v => !v)} className={`${btnBase} bg-background text-foreground border-border hover:bg-muted`}>Load saved ({user?.circuitSaves?.length || (user?.circuitSave ? 1 : 0)})</button>
+          <button onClick={() => setShowSavedCircuits(v => !v)} className={`${btnBase} bg-background text-foreground border-border hover:bg-muted`}>Load saved</button>
           <button onClick={clearCanvas} className={`${btnBase} bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive/20`}>Clear</button>
         </div>
       </div>
 
       {showSavedCircuits && <div className="border-b border-border bg-card p-4 max-h-52 overflow-y-auto">
         <div className="flex items-center justify-between mb-2"><h3 className="font-semibold text-sm text-foreground">Saved circuits</h3><button onClick={() => setShowSavedCircuits(false)} className="text-xs text-muted-foreground hover:text-foreground">Close</button></div>
-        {(user?.circuitSaves?.length ? [...user.circuitSaves].reverse() : user?.circuitSave ? [{ id: 'legacy', name: 'Previously saved circuit', nodes: user.circuitSave, savedAt: '' }] : []).length === 0 ? <p className="text-sm text-muted-foreground">No saved circuits yet. Build a circuit and choose Save.</p> : <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">{(user?.circuitSaves?.length ? [...user.circuitSaves].reverse() : user?.circuitSave ? [{ id: 'legacy', name: 'Previously saved circuit', nodes: user.circuitSave, savedAt: '' }] : []).map(c => <button key={c.id} onClick={() => loadCircuit(c.nodes)} className="text-left rounded-lg border border-border bg-background hover:bg-muted px-3 py-2"><span className="block text-sm font-medium text-foreground">{c.name}</span><span className="block text-xs text-muted-foreground">{c.savedAt ? new Date(c.savedAt).toLocaleString() : 'Saved circuit'}</span></button>)}</div>}
+        {(user?.circuitSaves?.length ? [...user.circuitSaves].reverse() : user?.circuitSave ? [{ id: 'legacy', name: 'Previously saved circuit', nodes: user.circuitSave, savedAt: '' }] : []).length === 0 ? <p className="text-sm text-muted-foreground">No saved circuits yet. Build a circuit and choose Save.</p> : <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">{(user?.circuitSaves?.length ? [...user.circuitSaves].reverse() : user?.circuitSave ? [{ id: 'legacy', name: 'Previously saved circuit', nodes: user.circuitSave, savedAt: '' }] : []).map(c => <div key={c.id} className="flex items-stretch gap-2 rounded-lg border border-border bg-background p-2"><button onClick={() => loadCircuit(c.nodes)} className="flex-1 min-w-0 text-left hover:bg-muted rounded px-1 py-1"><span className="block text-sm font-medium text-foreground truncate">{c.name}</span><span className="block text-xs text-muted-foreground">{c.savedAt ? new Date(c.savedAt).toLocaleString() : 'Saved circuit'}</span></button><button onClick={() => { if (window.confirm(`Delete saved circuit “${c.name}”?`)) deleteCircuit(c.id); }} className="self-center rounded-md px-2 py-1 text-xs font-medium text-destructive hover:bg-destructive/10" aria-label={`Delete ${c.name}`} title="Delete saved circuit">Delete</button></div>)}</div>}
       </div>}
 
       <div className="flex flex-1 overflow-hidden min-h-0">

@@ -8,6 +8,7 @@ import { getBlitzConfig, generateBlitzQuestion } from '@/lib/gameLevels';
 import { LevelSelect, ResultsScreen } from './GateMatchGame';
 import { DifficultyBadge } from '@/components/ui/PixelComponents';
 import { ArrowLeft } from 'lucide-react';
+import { playGameSound } from '@/lib/gameAudio';
 
 type Screen = 'levels' | 'playing' | 'results';
 
@@ -59,6 +60,7 @@ export default function BlitzGame() {
     if (screen !== 'playing' || answered) return;
     if (timeLeft <= 0) {
       setFeedback('wrong');
+      playGameSound('wrong');
       setAnswered(true);
       setTimeout(() => nextRound(false), 800);
       return;
@@ -72,6 +74,7 @@ export default function BlitzGame() {
     setAnswered(true);
     const isCorrect = ans === question.answer;
     setFeedback(isCorrect ? 'correct' : 'wrong');
+    playGameSound(isCorrect ? 'correct' : 'wrong');
     if (isCorrect) {
       setCorrect(c => c + 1);
       setScore(s => s + Math.round(100 + timeLeft * 10));

@@ -11,6 +11,7 @@ export interface User {
   password: string;
   displayName: string;
   avatar: number;
+  avatarImage?: string;
   xp: number;
   level: number;
   badges: string[];
@@ -141,7 +142,7 @@ export function createNewUser(identifier: string, password: string, displayName:
     xp: 0,
     level: 1,
     badges: [],
-    unlockedTopics: [GATE_TOPICS[0]],
+    unlockedTopics: [...GATE_TOPICS], // all topics unlocked from the start
     quizScores: {},
     practiceStreak: 0,
     lastPracticeDate: '',

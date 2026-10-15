@@ -21,7 +21,7 @@ interface AppContextValue {
 const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => getCurrentUser());
   const [settings, setSettings] = useState<Settings>(getSettings());
   const storageOk = storageAvailable();
 
@@ -33,33 +33,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     refreshUser();
   }, [refreshUser]);
-
-  // Play a short, subtle UI tone while sound is enabled (including game interactions).
-  useEffect(() => {
-    if (!settings.soundEnabled) return;
-    const playTone = (frequency = 660) => {
-      try {
-        const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-        if (!AudioContextClass) return;
-        const context = new AudioContextClass();
-        const oscillator = context.createOscillator();
-        const gain = context.createGain();
-        oscillator.type = 'sine';
-        oscillator.frequency.value = frequency;
-        gain.gain.setValueAtTime(0.035, context.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.075);
-        oscillator.connect(gain); gain.connect(context.destination);
-        oscillator.start(); oscillator.stop(context.currentTime + 0.08);
-        oscillator.onended = () => { void context.close(); };
-      } catch { /* Audio is optional; never block the game if unavailable. */ }
-    };
-    const handleClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target?.closest('button,[role="button"]')) playTone(720);
-    };
-    document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
-  }, [settings.soundEnabled]);
 
   // Apply dark mode class
   useEffect(() => {

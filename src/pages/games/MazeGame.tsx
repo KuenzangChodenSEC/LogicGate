@@ -9,6 +9,7 @@ import { GateType, evaluateGate } from '@/lib/gateData';
 import { LevelSelect, ResultsScreen } from './GateMatchGame';
 import { DifficultyBadge } from '@/components/ui/PixelComponents';
 import { ArrowLeft, ArrowUp, ArrowDown, ArrowRight, ArrowLeftIcon } from 'lucide-react';
+import { playGameSound } from '@/lib/gameAudio';
 
 type Screen = 'levels' | 'playing' | 'results';
 type Dir = 'up' | 'down' | 'left' | 'right';
@@ -163,6 +164,7 @@ export default function MazeGame() {
     const { grid } = maze;
     const target = pendingCell;
     if (ans === target.answer) {
+      playGameSound('correct');
       setFeedback('Correct! Path unlocked!');
       const nr = pendingDir === 'up' ? maze.playerRow - 1
         : pendingDir === 'down' ? maze.playerRow + 1 : maze.playerRow;
@@ -170,6 +172,7 @@ export default function MazeGame() {
         : pendingDir === 'right' ? maze.playerCol + 1 : maze.playerCol;
       setTimeout(() => movePlayer(nr, nc, target), 400);
     } else {
+      playGameSound('wrong');
       setWrongMoves(w => w + 1);
       setFeedback(`Wrong! The answer was ${target.answer}. You stay here.`);
       setPendingCell(null);
