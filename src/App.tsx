@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import IntersectObserver from '@/components/common/IntersectObserver';
 import { Toaster } from '@/components/ui/sonner';
 import { AppProvider } from '@/contexts/AppContext';
@@ -31,7 +31,7 @@ import NotFound from './pages/NotFound';
 const App: React.FC = () => {
   return (
     <AppProvider>
-      <Router basename="/LogicGate">
+      <Router>
         <IntersectObserver />
         <Routes>
           {/* Public */}
