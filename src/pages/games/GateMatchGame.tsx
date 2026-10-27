@@ -169,7 +169,7 @@ export default function GateMatchGame() {
   const cols = cfg.gridCols;
 
   return (
-    <div className="p-4 md:p-6 max-w-3xl mx-auto">
+    <div className="p-3 md:p-4 max-w-3xl mx-auto">
       {/* HUD */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <button onClick={() => setScreen('levels')} className="pixel-btn px-3 py-1.5 text-sm flex items-center gap-1">
@@ -184,12 +184,12 @@ export default function GateMatchGame() {
       </div>
 
       {/* Cards grid */}
-      <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+      <div className="grid gap-1.5 max-h-[calc(100vh-190px)]" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
         {cards.map(card => (
           <button
             key={card.id}
             onClick={() => flipCard(card.id)}
-            className={`aspect-square border-2 flex items-center justify-center text-xs transition-all ${
+            className={`aspect-square min-h-0 max-h-[100px] border-2 rounded-md flex items-center justify-center text-xs transition-all ${
               card.matched ? 'bg-accent/20 border-accent opacity-50 cursor-default' :
               card.flipped ? 'bg-card border-primary' : 'bg-muted border-border hover:border-primary'
             }`}
@@ -197,7 +197,7 @@ export default function GateMatchGame() {
           >
             {card.flipped || card.matched ? (
               card.cardType === 'symbol' ? (
-                <GateSVG gate={card.gateType} size={40} active />
+                <GateSVG gate={card.gateType} size={Math.min(30, Math.floor(260 / cols))} active />
               ) : (
                 <span className="text-xs font-semibold text-foreground">{card.gateType}</span>
               )
@@ -221,6 +221,13 @@ export function LevelSelect({ gameTitle, progress, user, gameId, onSelect }: {
   onSelect: (idx: number) => void;
 }) {
   const isUnlocked = (idx: number) => isLevelUnlocked(user, gameId, idx);
+  const [tutorialLevel, setTutorialLevel] = useState<number | null>(null);
+  const gameTips: Record<string, string[]> = {
+    'TRUTH TABLE BLITZ': ['Read the logic-gate question carefully.', 'Choose output 0 or 1 before the timer ends.', 'Correct answers earn points; harder levels have less time.'],
+    'GATE MATCH': ['Tap a card to reveal its gate symbol or name.', 'Find two cards that represent the same logic gate.', 'Match every pair before the countdown reaches zero.'],
+    'LOGIC MAZE': ['Use the arrow controls to move through the maze.', 'Solve the logic-gate challenges blocking your route.', 'Reach the exit to finish the level.'],
+    'BOOLEAN BUILDER': ['Read the Boolean expression or target shown.', 'Choose and arrange the correct logic components/answers.', 'Check your result and complete the challenge to unlock the next level.'],
+  };
   const completedCount = progress.filter(level => level.completed).length;
 
   return (
@@ -238,11 +245,11 @@ export function LevelSelect({ gameTitle, progress, user, gameId, onSelect }: {
           const p = progress[idx];
           const diff = getDifficulty(idx);
           const diffColors: Record<string, string> = {
-            Easy: 'border-accent', Medium: 'border-amber-400',
-            Hard: 'border-orange-400', Expert: 'border-primary',
+            Easy: 'border-emerald-500 bg-emerald-50', Medium: 'border-sky-500 bg-sky-50',
+            Hard: 'border-orange-500 bg-orange-50', Expert: 'border-violet-600 bg-violet-50',
           };
           return (
-            <button key={idx} disabled={!isUnlocked(idx)} onClick={() => { if (isUnlocked(idx)) onSelect(idx); }}
+            <button key={idx} disabled={!isUnlocked(idx)} onClick={() => { if (isUnlocked(idx)) setTutorialLevel(idx); }}
               title={isUnlocked(idx) ? `Play level ${idx + 1}` : 'Complete the previous level to unlock'}
               className={`pixel-card p-1.5 flex flex-col items-center gap-0.5 border-2 ${diffColors[diff]} ${isUnlocked(idx) ? 'hover:scale-95 active:scale-100' : 'opacity-45 cursor-not-allowed bg-muted'} ${p?.completed ? 'bg-primary/10' : ''}`}
             >
@@ -255,8 +262,24 @@ export function LevelSelect({ gameTitle, progress, user, gameId, onSelect }: {
         })}
       </div>
 
+      {tutorialLevel !== null && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="game-tutorial-title">
+          <div className="pixel-card bg-background p-6 max-w-md w-full shadow-xl">
+            <p className="text-primary text-xs font-bold uppercase tracking-wider mb-2">Before you start</p>
+            <h2 id="game-tutorial-title" className="text-xl font-bold text-foreground mb-4">How to play {gameTitle}</h2>
+            <ol className="list-decimal pl-5 space-y-3 text-sm text-foreground">
+              {(gameTips[gameTitle] ?? ['Read the challenge instructions.', 'Choose your answer or action carefully.', 'Complete the level to earn progress and unlock the next challenge.']).map((tip, i) => <li key={i}>{tip}</li>)}
+            </ol>
+            <div className="flex gap-2 mt-6">
+              <button className="pixel-btn flex-1 py-2" onClick={() => setTutorialLevel(null)}>Not yet</button>
+              <button className="pixel-btn-primary flex-1 py-2" onClick={() => { const idx = tutorialLevel; setTutorialLevel(null); onSelect(idx); }}>Start Level {tutorialLevel + 1}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mt-4 flex gap-4 text-xs flex-wrap">
-        {[['Easy', 'text-accent'], ['Medium', 'text-amber-400'], ['Hard', 'text-orange-400'], ['Expert', 'text-primary']].map(([d, c]) => (
+        {[['Easy', 'text-emerald-600'], ['Medium', 'text-sky-600'], ['Hard', 'text-orange-600'], ['Expert', 'text-violet-600']].map(([d, c]) => (
           <span key={d}><span className={`${c} font-bold`}>■</span> {d}</span>
         ))}
       </div>

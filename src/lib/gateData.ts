@@ -44,7 +44,7 @@ export const GATES: GateInfo[] = [
       { a: 1, b: 0, out: 0 }, { a: 1, b: 1, out: 1 },
     ],
     realWorldExample: 'A safety system that activates only when both the key is turned AND the button is pressed simultaneously.',
-    videoId: 'JiViND-bpmw',
+    videoId: 'N4yu37cekCo',
     color: '#f59e0b',
     tutorialSteps: [
       'The AND gate has two inputs (A and B) and one output (Y).',
@@ -66,7 +66,7 @@ export const GATES: GateInfo[] = [
       { a: 1, b: 0, out: 1 }, { a: 1, b: 1, out: 1 },
     ],
     realWorldExample: 'A home alarm that triggers when the front door OR the back door is opened.',
-    videoId: 'JiViND-bpmw',
+    videoId: 'A1rpn_IVRyo',
     color: '#ef4444',
     tutorialSteps: [
       'The OR gate has two inputs (A and B) and one output (Y).',
@@ -87,7 +87,7 @@ export const GATES: GateInfo[] = [
       { a: 0, out: 1 }, { a: 1, out: 0 },
     ],
     realWorldExample: "A street light that turns ON when it's NOT daytime (darkness sensor inverted).",
-    videoId: 'JiViND-bpmw',
+    videoId: 'jN1mEyGJXdo',
     color: '#8b5cf6',
     tutorialSteps: [
       'The NOT gate has ONE input (A) and one output (Y).',
@@ -109,7 +109,7 @@ export const GATES: GateInfo[] = [
       { a: 1, b: 0, out: 1 }, { a: 1, b: 1, out: 0 },
     ],
     realWorldExample: 'The safety interlock in industrial machinery: the machine stops ONLY when all safety conditions are met (both guards closed).',
-    videoId: 'JiViND-bpmw',
+    videoId: 'KCxj9gTJkp0',
     color: '#06b6d4',
     tutorialSteps: [
       'NAND = NOT + AND. It is the complement of the AND gate.',
@@ -132,7 +132,7 @@ export const GATES: GateInfo[] = [
       { a: 1, b: 0, out: 0 }, { a: 1, b: 1, out: 0 },
     ],
     realWorldExample: 'A system that sends an alert ONLY when all sensors show zero activity (total silence detector).',
-    videoId: 'JiViND-bpmw',
+    videoId: 'Fa8VyXrT4hM',
     color: '#10b981',
     tutorialSteps: [
       'NOR = NOT + OR. It is the complement of the OR gate.',
@@ -155,7 +155,7 @@ export const GATES: GateInfo[] = [
       { a: 1, b: 0, out: 1 }, { a: 1, b: 1, out: 0 },
     ],
     realWorldExample: 'A difference detector: the output is 1 only when the two inputs are different (used in binary adders).',
-    videoId: 'JiViND-bpmw',
+    videoId: 'AGS3cULg-kA',
     color: '#f97316',
     tutorialSteps: [
       "XOR means 'Exclusive OR' — exclusive because it excludes the case when both are 1.",
@@ -177,7 +177,7 @@ export const GATES: GateInfo[] = [
       { a: 1, b: 0, out: 0 }, { a: 1, b: 1, out: 1 },
     ],
     realWorldExample: 'A digital comparator that outputs 1 when two bit values are equal (used in equality checkers).',
-    videoId: 'JiViND-bpmw',
+    videoId: 'FWM2t-0wFBQ',
     color: '#ec4899',
     tutorialSteps: [
       'XNOR = NOT + XOR. It is the complement of the XOR gate.',

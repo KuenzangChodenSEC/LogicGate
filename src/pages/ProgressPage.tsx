@@ -1,11 +1,10 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+
 import { useApp } from '@/contexts/AppContext';
 import {
   GATE_TOPICS, GAMES, GameId, getGameProgress,
   XP_THRESHOLDS, getLevelFromXP, getXPForNextLevel, GAME_LEVELS
 } from '@/lib/storage';
-import { GATES } from '@/lib/gateData';
+
 import { TrendingUp, BookOpen, Gamepad2, HelpCircle } from 'lucide-react';
 
 const GAME_NAMES: Record<GameId, string> = {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { GATES, GateType, evaluateGate } from '@/lib/gateData';
 
 export default function SimulatorPage() {

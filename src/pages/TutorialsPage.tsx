@@ -126,7 +126,7 @@ export default function TutorialsPage() {
 }
 
 function TutorialEntry({
-  id, title, tag, tagColor, desc, expanded, onToggle, children
+   title, tag, tagColor, desc, expanded, onToggle, children
 }: {
   id: string; title: string; tag: string; tagColor: string; desc: string;
   expanded: boolean; onToggle: () => void; children?: React.ReactNode;

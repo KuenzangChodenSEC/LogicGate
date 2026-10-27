@@ -1,4 +1,3 @@
-import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { getGateInfo } from '@/lib/gateData';

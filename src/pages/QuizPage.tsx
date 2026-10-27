@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { GATE_TOPICS, updateUser, checkAndAwardBadges } from '@/lib/storage';

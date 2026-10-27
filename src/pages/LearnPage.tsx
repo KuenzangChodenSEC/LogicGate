@@ -1,10 +1,9 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { GATES } from '@/lib/gateData';
 import { GATE_TOPICS } from '@/lib/storage';
 import GateSVG from '@/components/GateSVG';
-import { ChevronRight, BookOpen, HelpCircle } from 'lucide-react';
+import { BookOpen, HelpCircle } from 'lucide-react';
 
 export default function LearnPage() {
   const { user } = useApp();

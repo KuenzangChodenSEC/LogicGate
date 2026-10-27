@@ -1,4 +1,3 @@
-
 import { useApp } from '@/contexts/AppContext';
 import { BADGE_DEFS } from '@/lib/storage';
 

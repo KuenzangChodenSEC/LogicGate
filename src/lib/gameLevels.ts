@@ -46,19 +46,19 @@ export interface BlitzConfig {
 
 export function getBlitzConfig(level: number): BlitzConfig {
   const l = level;
-  if (l <= 4) return { level: l, rounds: 8, timePerRound: 6, gates: EASY_GATES, multiGate: false, symbolOnly: false };
-  if (l <= 8) return { level: l, rounds: 10, timePerRound: 5, gates: EASY_GATES, multiGate: false, symbolOnly: false };
-  if (l <= 12) return { level: l, rounds: 12, timePerRound: 5, gates: MED_GATES, multiGate: false, symbolOnly: false };
-  if (l <= 16) return { level: l, rounds: 14, timePerRound: 4, gates: ALL_GATES, multiGate: false, symbolOnly: false };
-  if (l <= 20) return { level: l, rounds: 15, timePerRound: 4, gates: ALL_GATES, multiGate: false, symbolOnly: false };
-  if (l <= 25) return { level: l, rounds: 16, timePerRound: 3.5, gates: ALL_GATES, multiGate: true, symbolOnly: false };
-  if (l <= 30) return { level: l, rounds: 18, timePerRound: 3, gates: ALL_GATES, multiGate: true, symbolOnly: false };
-  if (l <= 35) return { level: l, rounds: 20, timePerRound: 3, gates: ALL_GATES, multiGate: true, symbolOnly: true };
-  if (l <= 40) return { level: l, rounds: 22, timePerRound: 2.5, gates: ALL_GATES, multiGate: true, symbolOnly: true };
-  if (l <= 45) return { level: l, rounds: 24, timePerRound: 2, gates: ALL_GATES, multiGate: true, symbolOnly: true };
-  if (l <= 50) return { level: l, rounds: 26, timePerRound: 2, gates: ALL_GATES, multiGate: true, symbolOnly: true };
+  if (l <= 4) return { level: l, rounds: 8, timePerRound: 15, gates: EASY_GATES, multiGate: false, symbolOnly: false };
+  if (l <= 8) return { level: l, rounds: 10, timePerRound: 12, gates: EASY_GATES, multiGate: false, symbolOnly: false };
+  if (l <= 12) return { level: l, rounds: 12, timePerRound: 10, gates: MED_GATES, multiGate: false, symbolOnly: false };
+  if (l <= 16) return { level: l, rounds: 14, timePerRound: 8, gates: ALL_GATES, multiGate: false, symbolOnly: false };
+  if (l <= 20) return { level: l, rounds: 15, timePerRound: 8, gates: ALL_GATES, multiGate: false, symbolOnly: false };
+  if (l <= 25) return { level: l, rounds: 16, timePerRound: 7, gates: ALL_GATES, multiGate: true, symbolOnly: false };
+  if (l <= 30) return { level: l, rounds: 18, timePerRound: 6, gates: ALL_GATES, multiGate: true, symbolOnly: false };
+  if (l <= 35) return { level: l, rounds: 20, timePerRound: 6, gates: ALL_GATES, multiGate: true, symbolOnly: true };
+  if (l <= 40) return { level: l, rounds: 22, timePerRound: 5, gates: ALL_GATES, multiGate: true, symbolOnly: true };
+  if (l <= 45) return { level: l, rounds: 24, timePerRound: 4, gates: ALL_GATES, multiGate: true, symbolOnly: true };
+  if (l <= 50) return { level: l, rounds: 26, timePerRound: 4, gates: ALL_GATES, multiGate: true, symbolOnly: true };
   const extra = l - 50;
-  return { level: l, rounds: 26 + extra, timePerRound: Math.max(1.5, 2 - extra * 0.05), gates: ALL_GATES, multiGate: true, symbolOnly: true };
+  return { level: l, rounds: 26 + extra, timePerRound: Math.max(2, 4 - extra * 0.1), gates: ALL_GATES, multiGate: true, symbolOnly: true };
 }
 
 export interface BlitzQuestion {

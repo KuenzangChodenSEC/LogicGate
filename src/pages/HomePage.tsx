@@ -1,9 +1,8 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { GATE_TOPICS, getLevelFromXP, getXPForNextLevel, XP_THRESHOLDS, BADGE_DEFS } from '@/lib/storage';
 import GateSVG from '@/components/GateSVG';
-import { BookOpen, Zap, Gamepad2, HelpCircle, Trophy, Star, TrendingUp, ArrowRight, PlayCircle, Target, Sparkles, CheckCircle2, Mountain, Lightbulb } from 'lucide-react';
+import { BookOpen, Zap, Gamepad2, HelpCircle, Trophy, Star, TrendingUp, ArrowRight, Target, Sparkles, CheckCircle2, Mountain, Lightbulb } from 'lucide-react';
 
 const QUICK_ACCESS = [
   { to: '/learn', icon: <BookOpen size={21} />, label: 'Learn', desc: 'Understand the gates step by step' },
@@ -91,7 +90,7 @@ export default function HomePage() {
       <section>
         <div className="mb-4"><p className="text-xs uppercase tracking-[.16em] text-accent font-bold">Inside the hub</p><h2 className="text-2xl font-extrabold mt-1">What this website provides</h2></div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {PROVIDES.map(([title,text], i) => <div key={title} className="pixel-card p-5 bg-card/95"><div className="flex items-center gap-3 mb-2"><span className="w-8 h-8 rounded-lg bg-accent/15 text-accent flex items-center justify-center"><CheckCircle2 size={16}/></span><h3 className="font-bold">{title}</h3></div><p className="text-xs text-muted-foreground leading-5 pl-11">{text}</p></div>)}
+          {PROVIDES.map(([title,text], ) => <div key={title} className="pixel-card p-5 bg-card/95"><div className="flex items-center gap-3 mb-2"><span className="w-8 h-8 rounded-lg bg-accent/15 text-accent flex items-center justify-center"><CheckCircle2 size={16}/></span><h3 className="font-bold">{title}</h3></div><p className="text-xs text-muted-foreground leading-5 pl-11">{text}</p></div>)}
         </div>
       </section>
 
