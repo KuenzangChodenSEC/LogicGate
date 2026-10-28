@@ -52,7 +52,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       {/* Logo */}
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <img src={`${import.meta.env.BASE_URL}images/logo/logicgate-bhutan-logo.png`} alt="LogicGate Bhutan logo" className="w-12 h-12 object-contain shrink-0" />
+          <img src={`${import.meta.env.BASE_URL}images/logo/logicgate-bhutan-logo.png`} alt="LogicGate logo" className="w-12 h-12 object-contain shrink-0" />
           <div>
             <p className="font-bold text-foreground text-sm leading-tight">LogicGate</p>
             <p className="text-muted-foreground text-xs">Class 9 DTI</p>
