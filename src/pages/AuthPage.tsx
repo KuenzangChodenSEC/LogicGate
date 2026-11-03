@@ -269,10 +269,10 @@ export default function AuthPage() {
           <div className="flex items-center gap-3">
             <div className="w-14 h-14 flex items-center justify-center">
               <img
-                src="public/images/logo/logicgate-bhutan-logo.png"
+                src={`${import.meta.env.BASE_URL}images/logo/logicgate-bhutan-logo.png`}
                 alt="LogicGate Logo"
                 className="w-full h-full object-contain"
-              />
+                />
             </div>
 
             <div>
@@ -351,10 +351,10 @@ export default function AuthPage() {
           <div className="lg:hidden text-center mb-7">
             <div className="mx-auto w-16 h-16 flex items-center justify-center mb-3">
               <img
-                src="public/images/logo/logicgate-bhutan-logo.png"
-                alt="LogicLab Logo"
+                src={`${import.meta.env.BASE_URL}images/logo/logicgate-bhutan-logo.png`}
+                alt="LogicGate Logo"
                 className="w-full h-full object-contain"
-              />
+                />
             </div>
 
             <h1 className="font-extrabold text-xl">
