@@ -268,9 +268,9 @@ export default function AuthPage() {
           {/* Logo and brand */}
           <div className="flex items-center gap-3">
             <div className="w-14 h-14 flex items-center justify-center">
-              <img
+               <img
                 src="public/images/logo/logicgate-bhutan-logo.png"
-                alt="LogicGate Logo"
+                alt="LogicLab Logo"
                 className="w-full h-full object-contain"
               />
             </div>
