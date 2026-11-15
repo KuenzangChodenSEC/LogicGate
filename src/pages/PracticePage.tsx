@@ -7,6 +7,10 @@ import GateSVG from '@/components/GateSVG';
 type Mode = 'truth' | 'boolean';
 
 export default function PracticePage() {
+  const { user, awardXP } = useApp();
+  const availableBooleanGates = user
+    ? GATE_TOPICS.filter(g => user.unlockedTopics.includes(g))
+    : [];
   const [mode, setMode] = useState<Mode>('truth');
   const [gateId, setGateId] = useState<GateType>('AND');
   const [inputA, setInputA] = useState(0);
@@ -15,8 +19,6 @@ export default function PracticePage() {
   const [feedback, setFeedback] = useState<{ correct: boolean; msg: string } | null>(null);
   const [sessionCorrect, setSessionCorrect] = useState(0);
   const [sessionTotal, setSessionTotal] = useState(0);
-  const { user, awardXP } = useApp();
-
 
   const isSingleInput = ['NOT'].includes(gateId);
   const correctOutput = evaluateGate(gateId, inputA, isSingleInput ? undefined : inputB);
@@ -46,10 +48,11 @@ export default function PracticePage() {
   }
 
   // Boolean mode state
-  const [boolGate, setBoolGate] = useState<GateType>('AND');
+  const [boolGate, setBoolGate] = useState<GateType>(
+    () => availableBooleanGates[Math.floor(Math.random() * availableBooleanGates.length)] ?? 'AND',
+  );
   const [boolAnswer, setBoolAnswer] = useState('');
   const [boolFeedback, setBoolFeedback] = useState<{ correct: boolean; msg: string } | null>(null);
-
   const GATE_EXPRESSIONS: Record<GateType, string> = {
     AND: 'A · B', OR: 'A + B', NOT: "A'", NAND: "(A · B)'",
     NOR: "(A + B)'", XOR: 'A ⊕ B', XNOR: "(A ⊕ B)'",
@@ -64,6 +67,15 @@ export default function PracticePage() {
         : `Not quite. ${GATE_EXPRESSIONS[boolGate]} represents the ${boolGate} gate.`,
     });
     if (correct) awardXP(5, 'Boolean practice');
+  }
+
+  function nextBooleanQuestion() {
+    const choices = availableBooleanGates.filter(g => g !== boolGate);
+    const nextGate = choices[Math.floor(Math.random() * choices.length)]
+      ?? availableBooleanGates[0];
+    if (nextGate) setBoolGate(nextGate);
+    setBoolAnswer('');
+    setBoolFeedback(null);
   }
 
   if (!user) return null;
@@ -150,25 +162,13 @@ export default function PracticePage() {
         </div>
       ) : (
         <div className="pixel-card p-6 space-y-5">
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Choose Expression</label>
-            <div className="flex flex-wrap gap-2">
-              {GATE_TOPICS.filter(g => user.unlockedTopics.includes(g)).map(g => (
-                <button key={g} onClick={() => { setBoolGate(g); setBoolFeedback(null); setBoolAnswer(''); }}
-                  className={`px-3 py-1.5 text-xs rounded border font-medium transition-colors ${boolGate === g ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border hover:border-primary'}`}>
-                  {g}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <div className="bg-muted rounded-lg border border-border p-5 text-center">
             <p className="text-muted-foreground text-xs mb-2 uppercase tracking-wide">Which gate does this expression represent?</p>
             <code className="text-primary text-2xl font-mono font-semibold">Y = {GATE_EXPRESSIONS[boolGate]}</code>
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {GATE_TOPICS.filter(g => user.unlockedTopics.includes(g)).map(g => (
+            {availableBooleanGates.map(g => (
               <button key={g} onClick={() => setBoolAnswer(g)}
                 className={`px-4 py-2 text-sm rounded border font-medium transition-colors ${boolAnswer === g ? 'bg-accent text-accent-foreground border-accent' : 'bg-background text-foreground border-border hover:border-accent'}`}>
                 {g}
@@ -188,9 +188,9 @@ export default function PracticePage() {
               className="pixel-btn-primary px-6 py-2 text-sm disabled:opacity-50">
               Check
             </button>
-            <button onClick={() => { setBoolFeedback(null); setBoolAnswer(''); }}
+            <button onClick={nextBooleanQuestion}
               className="pixel-btn px-6 py-2 text-sm">
-              Reset
+              Next Question
             </button>
           </div>
         </div>

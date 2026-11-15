@@ -90,7 +90,7 @@ export default function SettingsPage() {
             {settings.soundEnabled ? <Volume2 size={17} className="text-accent" /> : <VolumeX size={17} className="text-muted-foreground" />}
             <div>
               <p className="text-foreground text-sm font-medium">Sound Effects</p>
-              <p className="text-muted-foreground text-xs">Game and quiz feedback sounds</p>
+              <p className="text-muted-foreground text-xs">Navigation and game feedback sounds</p>
             </div>
           </div>
           <button onClick={() => updateSettings({ soundEnabled: !settings.soundEnabled })}

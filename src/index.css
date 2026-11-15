@@ -75,7 +75,7 @@
 
   * { @apply border-border; box-sizing: border-box; }
 
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; scrollbar-gutter: stable; }
 
   body {
     @apply bg-background text-foreground;
@@ -116,9 +116,287 @@
     inset: 0 0 auto 0;
     height: 4px;
     background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary)));
+    background-size: 200% 100%;
+    background-position: 0 50%;
     opacity: .9;
+    transition: background-position 420ms ease;
   }
-  .card-base:hover, .pixel-card:hover { box-shadow: 0 14px 30px rgba(92,44,28,.13); transform: translateY(-2px); }
+  .card-base:hover::before, .pixel-card:hover::before {
+    background-position: 100% 50%;
+  }
+  .card-base:hover, .pixel-card:hover {
+    border-color: hsl(var(--accent)/.55);
+    box-shadow: 0 16px 34px rgba(92, 44, 28, .16), 0 0 0 1px hsl(var(--accent)/.08);
+  }
+  .card-base:focus-within, .pixel-card:focus-within {
+    border-color: hsl(var(--ring));
+    box-shadow: 0 0 0 3px hsl(var(--ring)/.16), 0 10px 24px rgba(92, 44, 28, .1);
+  }
+
+  .blitz-game { perspective: 1100px; }
+  .pixel-card.blitz-question {
+    transform: rotateX(4deg) translateZ(0);
+    transform-style: preserve-3d;
+    box-shadow: 0 24px 44px rgba(49, 26, 10, .2), 0 8px 0 hsl(var(--accent)/.55);
+  }
+  .pixel-card.blitz-question:hover {
+    transform: rotateX(2deg) translateY(-2px);
+    box-shadow: 0 28px 48px rgba(49, 26, 10, .22), 0 8px 0 hsl(var(--accent)/.55);
+  }
+  .blitz-answer {
+    transform: translateY(-5px) rotateX(5deg);
+    transform-style: preserve-3d;
+    box-shadow: 0 8px 0 hsl(var(--primary)/.22), 0 14px 22px rgba(49, 26, 10, .12);
+  }
+  .blitz-answer:hover:not(:disabled) {
+    transform: translateY(-9px) rotateX(8deg) rotateY(-2deg);
+    box-shadow: 0 12px 0 hsl(var(--primary)/.22), 0 20px 28px rgba(49, 26, 10, .18);
+  }
+  .blitz-answer:active:not(:disabled) {
+    transform: translateY(0) rotateX(0);
+    box-shadow: 0 2px 0 hsl(var(--primary)/.22);
+  }
+
+  .bool-builder-game { perspective: 1500px; }
+  .bool-builder-canvas {
+    transform: rotateX(2deg);
+    transform-style: preserve-3d;
+    border: 1px solid hsl(var(--border));
+    border-radius: .85rem;
+    box-shadow: inset 0 2px 12px rgba(49, 26, 10, .08), 0 12px 0 hsl(var(--border)/.65), 0 22px 32px rgba(49, 26, 10, .16);
+  }
+  .bool-builder-wires path { filter: drop-shadow(0 2px 2px rgba(49, 26, 10, .22)); }
+  .bool-builder-node {
+    transform: translateZ(10px) rotateX(2deg);
+    transform-style: preserve-3d;
+    box-shadow: 0 6px 0 hsl(var(--border)), 0 12px 18px rgba(49, 26, 10, .16);
+  }
+  .bool-builder-node:hover {
+    transform: translateZ(16px) rotateX(0) scale(1.025);
+    box-shadow: 0 8px 0 hsl(var(--border)), 0 18px 24px rgba(49, 26, 10, .2);
+  }
+  .bool-builder-node.is-dragging {
+    transform: translateZ(28px) rotateX(0) scale(1.04);
+    box-shadow: 0 10px 0 hsl(var(--primary)/.3), 0 24px 30px rgba(49, 26, 10, .26);
+  }
+  .bool-builder-node.bool-node-input {
+    border-color: hsl(var(--info)/.65);
+    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--info)/.12));
+  }
+  .bool-builder-node.bool-node-output {
+    border-color: hsl(var(--accent)/.75);
+    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--accent)/.16));
+  }
+  .bool-builder-node:not(.bool-node-input):not(.bool-node-output) {
+    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--primary)/.08));
+  }
+  .bool-builder-connector {
+    transform: translateZ(4px);
+    box-shadow: 0 2px 0 hsl(var(--primary)/.45), 0 4px 6px rgba(49, 26, 10, .2);
+  }
+  .bool-builder-gate-button {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 hsl(var(--border)), 0 7px 10px rgba(49, 26, 10, .1);
+  }
+  .bool-builder-gate-button:hover:not(:disabled) {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 0 hsl(var(--primary)/.25), 0 11px 14px rgba(49, 26, 10, .16);
+  }
+  .bool-builder-gate-button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 0 hsl(var(--border));
+  }
+
+  .gate-match-board { perspective: 1300px; perspective-origin: center top; }
+  .gate-match-card {
+    position: relative;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: .9rem;
+    background: transparent;
+    transform-style: preserve-3d;
+    cursor: pointer;
+  }
+  .gate-match-card:focus-visible {
+    outline: 3px solid hsl(var(--ring));
+    outline-offset: 4px;
+  }
+  .gate-match-card-inner {
+    position: absolute;
+    inset: 0;
+    display: block;
+    transform-style: preserve-3d;
+    transition: transform 480ms cubic-bezier(.2,.75,.2,1);
+  }
+  .gate-match-card-inner.is-flipped { transform: rotateY(180deg); }
+  .gate-match-card-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 2px solid hsl(var(--border));
+    border-radius: .9rem;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    box-shadow: 0 7px 0 hsl(var(--border)), 0 13px 20px rgba(49, 26, 10, .16);
+  }
+  .gate-match-card-front {
+    border-color: hsl(var(--primary));
+    background: linear-gradient(145deg, hsl(var(--primary)), hsl(5 62% 24%));
+    color: hsl(var(--primary-foreground));
+    font-size: clamp(1.75rem, 5vw, 3rem);
+    font-weight: 800;
+    text-shadow: 0 3px 0 rgba(0, 0, 0, .2);
+  }
+  .gate-match-card-front::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid hsl(var(--primary-foreground)/.28);
+    border-radius: .55rem;
+    pointer-events: none;
+  }
+  .gate-match-card-back {
+    transform: rotateY(180deg);
+    border-color: hsl(var(--accent)/.75);
+    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--accent)/.12));
+  }
+  .gate-match-card-back.is-matched {
+    border-color: hsl(var(--accent));
+    background: linear-gradient(145deg, hsl(var(--accent)/.26), hsl(var(--card)));
+    box-shadow: 0 5px 0 hsl(var(--accent)/.45), 0 10px 18px rgba(49, 26, 10, .12);
+  }
+  .gate-match-card:not(:disabled):hover .gate-match-card-inner:not(.is-flipped) {
+    transform: translateY(-5px) rotateX(5deg);
+  }
+  .gate-match-card:not(:disabled):active .gate-match-card-inner:not(.is-flipped) {
+    transform: translateY(1px) rotateX(0);
+  }
+
+  .maze-game { perspective: 1400px; }
+  .maze-play-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .maze-board-controls {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .maze-question-panel { width: 100%; min-width: 0; }
+  .pixel-card.maze-board-frame {
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 0;
+    overflow: visible;
+  }
+  .maze-board {
+    display: grid;
+    width: min(100%, 500px);
+    aspect-ratio: 1;
+    gap: clamp(3px, .7vw, 8px);
+    margin-inline: auto;
+    padding: clamp(8px, 1.8vw, 16px);
+    border: 1px solid hsl(var(--border));
+    border-radius: 1rem;
+    background: linear-gradient(145deg, hsl(var(--secondary)), hsl(var(--muted)));
+    box-shadow: 0 24px 40px rgba(49, 26, 10, .2), 0 10px 0 hsl(var(--primary)/.16);
+    transform: rotateX(7deg);
+    transform-style: preserve-3d;
+  }
+  .maze-cell {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    border: 1px solid hsl(var(--border));
+    border-radius: clamp(3px, .6vw, 8px);
+    box-shadow: 0 4px 0 hsl(var(--border)/.8), 0 6px 8px rgba(49, 26, 10, .12);
+    transform-style: preserve-3d;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+  .maze-cell-floor { background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--background))); }
+  .maze-cell-wall {
+    border-color: #1e293b;
+    background: linear-gradient(145deg, #64748b, #1e293b 80%);
+    box-shadow: 0 6px 0 #0f172a, 0 9px 10px rgba(15, 23, 42, .3);
+  }
+  .maze-cell-player {
+    z-index: 2;
+    border-color: #0284c7;
+    background: radial-gradient(circle at 50% 70%, #bae6fd, #38bdf8 70%, #0284c7);
+    box-shadow: 0 6px 0 #0369a1, 0 10px 14px rgba(3, 105, 161, .3);
+    transform: translateZ(14px) scale(1.04);
+  }
+  .maze-cell-exit {
+    border-color: hsl(var(--accent));
+    background: linear-gradient(145deg, hsl(var(--accent)/.8), hsl(var(--accent)));
+    color: hsl(var(--accent-foreground));
+    box-shadow: 0 5px 0 hsl(var(--accent)/.55), 0 8px 10px rgba(49, 26, 10, .16);
+  }
+  .maze-cell-solved {
+    border-color: hsl(var(--accent)/.55);
+    background: linear-gradient(145deg, hsl(var(--accent)/.24), hsl(var(--accent)/.1));
+  }
+  .maze-cell-gate {
+    border-color: #d97706;
+    background: linear-gradient(145deg, #fef3c7, #fbbf24);
+    color: #78350f;
+    box-shadow: 0 5px 0 #d97706, 0 8px 10px rgba(120, 53, 15, .16);
+  }
+  .maze-explorer {
+    width: 82%;
+    height: 88%;
+    overflow: visible;
+    filter: drop-shadow(0 3px 2px rgba(15, 23, 42, .3));
+  }
+  .maze-exit-icon { width: 55%; height: 55%; stroke-width: 2.5; }
+  .maze-gate-mark { font-size: clamp(12px, 2.5vw, 26px); font-weight: 800; text-shadow: 0 1px rgba(255,255,255,.5); }
+  .maze-control-center {
+    border-color: hsl(var(--border));
+    background: linear-gradient(145deg, hsl(var(--secondary)), hsl(var(--muted)));
+    color: hsl(var(--muted-foreground));
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    box-shadow: inset 0 2px 4px rgba(49, 26, 10, .12);
+  }
+
+  @media (min-width: 1024px) {
+    .maze-play-area:not(.has-question) { flex-direction: row; justify-content: center; }
+    .maze-board-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 540px) auto;
+      align-items: center;
+      gap: clamp(12px, 1.5vw, 20px);
+      width: fit-content;
+      max-width: 100%;
+    }
+    .maze-play-area.has-question {
+      display: grid;
+      grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+      align-items: center;
+      gap: clamp(16px, 2vw, 28px);
+    }
+    .maze-play-area.has-question .maze-board-controls {
+      grid-template-columns: minmax(0, 1fr) auto;
+      width: 100%;
+    }
+    .pixel-card.maze-board-frame {
+      justify-self: end;
+      width: min(100%, 540px);
+    }
+  }
 
   .pixel-btn {
     @apply inline-flex items-center justify-center font-medium border px-4 py-2 text-sm cursor-pointer select-none transition-all duration-200 ease-out;
@@ -126,7 +404,8 @@
     border-color: hsl(var(--border));
     background: hsl(var(--card));
   }
-  .pixel-btn:hover { background: hsl(var(--secondary)); transform: translateY(-1px); }
+  .pixel-btn:hover:not(:disabled) { background: hsl(var(--secondary)); transform: translateY(-2px); box-shadow: 0 5px 12px rgba(49, 26, 10, .12); }
+  .pixel-btn:active:not(:disabled) { transform: translateY(1px) scale(.98); box-shadow: none; }
 
   .pixel-btn-primary {
     @apply inline-flex items-center justify-center font-semibold px-4 py-2 text-sm cursor-pointer select-none transition-all duration-200 ease-out;
@@ -135,7 +414,8 @@
     background: linear-gradient(135deg, hsl(var(--primary)), hsl(5 62% 25%));
     box-shadow: 0 6px 16px rgba(117,35,30,.18);
   }
-  .pixel-btn-primary:hover { transform: translateY(-1px); filter: brightness(1.06); }
+  .pixel-btn-primary:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.06); box-shadow: 0 9px 20px rgba(117,35,30,.25); }
+  .pixel-btn-primary:active:not(:disabled) { transform: translateY(1px) scale(.98); filter: brightness(.98); box-shadow: 0 2px 6px rgba(117,35,30,.18); }
 
   .pixel-btn-secondary { @apply inline-flex items-center justify-center font-medium border px-4 py-2 text-sm cursor-pointer select-none transition-all duration-200 ease-out; border-radius:.55rem; background:hsl(var(--secondary)); }
   .pixel-btn-accent { @apply inline-flex items-center justify-center font-semibold px-4 py-2 text-sm cursor-pointer select-none transition-all duration-200 ease-out; border-radius:.55rem; background:hsl(var(--accent)); color:hsl(var(--accent-foreground)); }
@@ -151,7 +431,14 @@
 
   .xp-pill { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium; background:hsl(var(--accent)/.15); color:hsl(var(--primary)); }
   .pixel-progress { @apply overflow-hidden rounded-full; height:8px; background:hsl(var(--secondary)); }
-  .pixel-progress-fill { @apply h-full rounded-full; background:linear-gradient(90deg,hsl(var(--primary)),hsl(var(--accent))); transition:width .3s ease; }
+  .pixel-progress-fill {
+    @apply h-full rounded-full;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary)));
+    background-size: 200% 100%;
+    animation: progress-shimmer 3.5s ease-in-out infinite alternate;
+    transition: width .3s ease;
+  }
+  @keyframes progress-shimmer { to { background-position: 100% 0; } }
   .pixel-divider { @apply border-t my-4; border-color:hsl(var(--border)); }
 
   .bhutan-pattern {
@@ -166,6 +453,7 @@
   }
 
   .nav-link-active { background:hsl(var(--accent)/.18); color:hsl(var(--accent)); font-weight:600; }
+  .sidebar-nav-item:not([aria-current="page"]):hover { transform: translateX(3px); }
   .smooth-transition { transition: all 260ms cubic-bezier(.22,1,.36,1); }
   .gate-symbol { @apply flex items-center justify-center border rounded-md; background:hsl(var(--card)); border-color:hsl(var(--border)); width:80px; height:60px; }
   .star-filled { color:hsl(var(--warning)); }
@@ -186,17 +474,19 @@
   }
 
   * { scrollbar-width: thin; scrollbar-color: hsl(var(--primary)) transparent; }
+  :focus-visible { outline: 3px solid hsl(var(--ring)); outline-offset: 3px; }
   ::-webkit-scrollbar { width:7px; height:7px; }
   ::-webkit-scrollbar-track { background:transparent; }
   ::-webkit-scrollbar-thumb { background:hsl(var(--primary)); border-radius:4px; }
 
-  @keyframes fade-in-up { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-  .animate-pixel-fade { animation: fade-in-up .45s cubic-bezier(.22,1,.36,1) both; }
-  .page-transition > * { animation: fade-in-up .38s cubic-bezier(.22,1,.36,1) both; }
-
+  @keyframes fade-in { from{opacity:0} to{opacity:1} }
+  .animate-pixel-fade { animation: fade-in .28s ease-out both; }
+  .route-page-transition { animation: fade-in .28s ease-out both; }
+  .route-page-transition > .animate-pixel-fade { animation: none; }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    .pixel-card.blitz-question, .pixel-card.blitz-question:hover, .blitz-answer, .blitz-answer:hover:not(:disabled), .blitz-answer:active:not(:disabled) { transform: none; }
   }
   @keyframes badge-pop { 0%{transform:scale(.9);opacity:.7} 60%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
   .badge-earned { animation:badge-pop .4s ease-out; }

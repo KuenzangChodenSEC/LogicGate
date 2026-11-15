@@ -169,7 +169,7 @@ export default function GateMatchGame() {
   const cols = cfg.gridCols;
 
   return (
-    <div className="p-3 md:p-4 max-w-3xl mx-auto">
+    <div className="p-3 md:p-4 max-w-4xl mx-auto">
       {/* HUD */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <button onClick={() => setScreen('levels')} className="pixel-btn px-3 py-1.5 text-sm flex items-center gap-1">
@@ -179,31 +179,34 @@ export default function GateMatchGame() {
           <span className="text-foreground font-medium">Level {levelIdx + 1}</span>
           <DifficultyBadge level={levelIdx} />
           <span className="text-accent font-medium">Pairs: {matchedPairs}/{cfg.pairs}</span>
+          <span className="text-muted-foreground font-medium">Cards: {cards.length}</span>
           <span className={`font-bold ${timeLeft <= 10 ? 'text-destructive' : 'text-primary'}`}>⏱ {timeLeft}s</span>
         </div>
       </div>
 
       {/* Cards grid */}
-      <div className="grid gap-1.5 max-h-[calc(100vh-190px)]" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+      <div
+        className="gate-match-board grid gap-3 mx-auto"
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, maxWidth: `${cols * 132}px` }}
+      >
         {cards.map(card => (
           <button
             key={card.id}
             onClick={() => flipCard(card.id)}
-            className={`aspect-square min-h-0 max-h-[100px] border-2 rounded-md flex items-center justify-center text-xs transition-all ${
-              card.matched ? 'bg-accent/20 border-accent opacity-50 cursor-default' :
-              card.flipped ? 'bg-card border-primary' : 'bg-muted border-border hover:border-primary'
-            }`}
+            aria-label={card.flipped || card.matched ? `${card.gateType} ${card.cardType} card` : 'Hidden gate card'}
+            className={`gate-match-card aspect-square min-h-0 ${card.matched ? 'is-matched' : ''}`}
             disabled={card.matched}
           >
-            {card.flipped || card.matched ? (
-              card.cardType === 'symbol' ? (
-                <GateSVG gate={card.gateType} size={Math.min(30, Math.floor(260 / cols))} active />
-              ) : (
-                <span className="text-xs font-semibold text-foreground">{card.gateType}</span>
-              )
-            ) : (
-              <span className="text-muted-foreground text-2xl">?</span>
-            )}
+            <span className={`gate-match-card-inner ${card.flipped || card.matched ? 'is-flipped' : ''}`}>
+              <span className="gate-match-card-face gate-match-card-front" aria-hidden="true">?</span>
+              <span className={`gate-match-card-face gate-match-card-back ${card.matched ? 'is-matched' : ''}`}>
+                {card.cardType === 'symbol' ? (
+                  <GateSVG gate={card.gateType} size={Math.min(56, Math.floor(360 / cols))} active />
+                ) : (
+                  <span className="text-sm md:text-base font-bold text-foreground">{card.gateType}</span>
+                )}
+              </span>
+            </span>
           </button>
         ))}
       </div>

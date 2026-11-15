@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { motion, useReducedMotion } from 'motion/react';
 import { useApp } from '@/contexts/AppContext';
+import { playNavigationSound } from '@/lib/gameAudio';
 import {
   Home, BookOpen, PlayCircle, Zap, Wrench, Cpu, Gamepad2,
   HelpCircle, TrendingUp, Award, User, Settings, ChevronRight, X
@@ -36,6 +38,8 @@ interface SidebarProps {
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const location = useLocation();
   const { user } = useApp();
+  const shouldReduceMotion = useReducedMotion();
+  const activeIndicatorId = open !== undefined ? 'sidebar-active-mobile' : 'sidebar-active-desktop';
 
   const xp = user?.xp ?? 0;
   const level = getLevelFromXP(xp);
@@ -69,8 +73,10 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       {user && (
         <div className="px-4 py-3 border-b border-border">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-9 h-9 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-sm">
-              {user.displayName.charAt(0).toUpperCase()}
+            <div className="w-9 h-9 shrink-0 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-sm overflow-hidden">
+              {user.avatarImage
+                ? <img src={user.avatarImage} alt="" className="w-full h-full object-cover" />
+                : user.displayName.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
               <p className="text-foreground font-medium truncate text-sm">{user.displayName}</p>
@@ -92,16 +98,28 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <Link
               key={item.path}
               to={item.path}
-              onClick={onClose}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm mb-0.5 transition-colors ${
+              onClick={() => {
+                if (location.pathname !== item.path) playNavigationSound();
+                onClose?.();
+              }}
+              aria-current={active ? 'page' : undefined}
+              className={`sidebar-nav-item relative flex items-center gap-3 px-3 py-2 rounded-md text-sm mb-0.5 transition-all duration-200 ${
                 active
-                  ? 'bg-primary text-white font-medium'
+                  ? 'text-white font-medium'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               }`}
             >
-              <span className="shrink-0">{item.icon}</span>
-              <span className="flex-1">{item.label}</span>
-              {active && <ChevronRight size={12} />}
+              {active && (
+                <motion.span
+                  layoutId={activeIndicatorId}
+                  className="absolute inset-0 z-0 rounded-md bg-primary"
+                  transition={shouldReduceMotion ? { duration: 0 } : { type: 'tween', duration: 0.22, ease: 'easeInOut' }}
+                  aria-hidden="true"
+                />
+              )}
+              <span className="relative z-10 shrink-0">{item.icon}</span>
+              <span className="relative z-10 flex-1">{item.label}</span>
+              {active && <ChevronRight className="relative z-10" size={12} />}
             </Link>
           );
         })}

@@ -116,7 +116,7 @@ export default function BlitzGame() {
   const timePct = (timeLeft / cfg.timePerRound) * 100;
 
   return (
-    <div className="p-4 md:p-8 max-w-lg mx-auto">
+    <div className="blitz-game p-4 md:p-8 max-w-lg mx-auto">
       {/* HUD */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <button onClick={() => setScreen('levels')} className="pixel-btn px-3 py-1.5 text-sm flex items-center gap-1">
@@ -137,7 +137,7 @@ export default function BlitzGame() {
       </div>
 
       {/* Question */}
-      <div className={`pixel-card p-8 text-center mb-6 ${
+      <div className={`pixel-card blitz-question p-8 text-center mb-6 ${
         feedback === 'correct' ? 'border-accent bg-accent/10' :
         feedback === 'wrong' ? 'border-destructive bg-destructive/10' : ''
       }`}>
@@ -154,7 +154,7 @@ export default function BlitzGame() {
       <div className="flex gap-6 justify-center">
         {[0, 1].map(val => (
           <button key={val} onClick={() => handleAnswer(val)} disabled={answered}
-            className={`w-28 py-8 text-5xl font-bold rounded-lg border-2 transition-colors disabled:opacity-60 ${
+            className={`blitz-answer w-28 py-8 text-5xl font-bold rounded-lg border-2 transition-all duration-200 ease-out disabled:opacity-60 ${
               answered && val === question.answer ? 'bg-accent text-accent-foreground border-accent' :
               answered ? 'bg-muted text-muted-foreground border-border' : 'bg-muted text-foreground border-border hover:bg-primary hover:text-primary-foreground hover:border-primary'
             }`}>

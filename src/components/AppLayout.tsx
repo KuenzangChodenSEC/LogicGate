@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Menu, AlertTriangle } from 'lucide-react';
 import Sidebar from './Sidebar';
 import { useApp } from '@/contexts/AppContext';
@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 export default function AppLayout() {
   const { storageOk } = useApp();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -44,8 +45,10 @@ export default function AppLayout() {
         )}
 
         {/* Page content */}
-        <main className="flex-1 overflow-x-hidden page-transition">
-          <Outlet />
+        <main className="flex-1 overflow-x-hidden">
+          <div key={location.key} className="route-page-transition">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

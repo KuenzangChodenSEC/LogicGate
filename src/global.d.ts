@@ -1,4 +1,4 @@
 // global types
 
-// 百度地图GL版本全局类型声明
+// Global type declarations for Baidu Maps GL
 /// <reference types="bmapgl" />
