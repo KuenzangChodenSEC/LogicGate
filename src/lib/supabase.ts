@@ -1,8 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import type { User } from '@/lib/storage';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+const defaultSupabaseUrl = 'https://neyckdjqabvfukwpjfgh.supabase.co';
+const defaultSupabaseAnonKey = 'sb_publishable_wibKVfq1DQSjRA6Af7Bl6g_na4Pnbo6';
+
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || defaultSupabaseUrl).trim();
+const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || defaultSupabaseAnonKey).trim();
 
 export const supabase =
   supabaseUrl && supabaseAnonKey
