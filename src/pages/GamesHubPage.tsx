@@ -5,7 +5,7 @@ import { Play, Puzzle, Timer, Hammer, Map } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 const GAME_META: Record<GameId, { title: string; desc: string; accentClass: string; iconBg: string; path: string; Icon: LucideIcon }> = {
-  blitz: { title: 'Truth Table Blitz', desc: 'Race the clock and choose the right outputs before time runs out.', accentClass: 'border-l-amber-400', iconBg: 'bg-amber-500/10 text-amber-600', path: '/games/blitz', Icon: Timer },
+  blitz: { title: 'Truth Table Blitz', desc: 'Race the clock to complete truth tables for logic gates and expressions.', accentClass: 'border-l-amber-400', iconBg: 'bg-amber-500/10 text-amber-600', path: '/games/blitz', Icon: Timer },
   maze: { title: 'Logic Maze', desc: 'Find your way through a maze by solving logic-gate challenges.', accentClass: 'border-l-cyan-500', iconBg: 'bg-cyan-500/10 text-cyan-600', path: '/games/maze', Icon: Map },
   boolBuilder: { title: 'Bool Builder', desc: 'Build Boolean expressions that match the target outputs.', accentClass: 'border-l-purple-400', iconBg: 'bg-purple-500/10 text-purple-600', path: '/games/bool-builder', Icon: Hammer },
   gateMatch: { title: 'Gate Match', desc: 'Match gate symbols with their names and train your memory.', accentClass: 'border-l-primary', iconBg: 'bg-primary/10 text-primary', path: '/games/gate-match', Icon: Puzzle },

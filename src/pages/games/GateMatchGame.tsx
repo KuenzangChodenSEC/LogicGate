@@ -226,7 +226,7 @@ export function LevelSelect({ gameTitle, progress, user, gameId, onSelect }: {
   const isUnlocked = (idx: number) => isLevelUnlocked(user, gameId, idx);
   const [tutorialLevel, setTutorialLevel] = useState<number | null>(null);
   const gameTips: Record<string, string[]> = {
-    'TRUTH TABLE BLITZ': ['Read the logic-gate question carefully.', 'Choose output 0 or 1 before the timer ends.', 'Correct answers earn points; harder levels have less time.'],
+    'TRUTH TABLE BLITZ': ['Read the Boolean expression above the table.', 'Choose 0 or 1 for the output of every input row.', 'Check your completed table before the timer runs out.'],
     'GATE MATCH': ['Tap a card to reveal its gate symbol or name.', 'Find two cards that represent the same logic gate.', 'Match every pair before the countdown reaches zero.'],
     'LOGIC MAZE': ['Use the arrow controls to move through the maze.', 'Solve the logic-gate challenges blocking your route.', 'Reach the exit to finish the level.'],
     'BOOLEAN BUILDER': ['Read the Boolean expression or target shown.', 'Choose and arrange the correct logic components/answers.', 'Check your result and complete the challenge to unlock the next level.'],

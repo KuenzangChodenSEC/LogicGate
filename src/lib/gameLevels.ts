@@ -46,51 +46,59 @@ export interface BlitzConfig {
 
 export function getBlitzConfig(level: number): BlitzConfig {
   const l = level;
-  if (l <= 4) return { level: l, rounds: 8, timePerRound: 15, gates: EASY_GATES, multiGate: false, symbolOnly: false };
-  if (l <= 8) return { level: l, rounds: 10, timePerRound: 12, gates: EASY_GATES, multiGate: false, symbolOnly: false };
-  if (l <= 12) return { level: l, rounds: 12, timePerRound: 10, gates: MED_GATES, multiGate: false, symbolOnly: false };
-  if (l <= 16) return { level: l, rounds: 14, timePerRound: 8, gates: ALL_GATES, multiGate: false, symbolOnly: false };
-  if (l <= 20) return { level: l, rounds: 15, timePerRound: 8, gates: ALL_GATES, multiGate: false, symbolOnly: false };
-  if (l <= 25) return { level: l, rounds: 16, timePerRound: 7, gates: ALL_GATES, multiGate: true, symbolOnly: false };
-  if (l <= 30) return { level: l, rounds: 18, timePerRound: 6, gates: ALL_GATES, multiGate: true, symbolOnly: false };
-  if (l <= 35) return { level: l, rounds: 20, timePerRound: 6, gates: ALL_GATES, multiGate: true, symbolOnly: true };
-  if (l <= 40) return { level: l, rounds: 22, timePerRound: 5, gates: ALL_GATES, multiGate: true, symbolOnly: true };
-  if (l <= 45) return { level: l, rounds: 24, timePerRound: 4, gates: ALL_GATES, multiGate: true, symbolOnly: true };
-  if (l <= 50) return { level: l, rounds: 26, timePerRound: 4, gates: ALL_GATES, multiGate: true, symbolOnly: true };
+  if (l <= 4) return { level: l, rounds: 8, timePerRound: 20, gates: EASY_GATES, multiGate: false, symbolOnly: false };
+  if (l <= 8) return { level: l, rounds: 10, timePerRound: 18, gates: EASY_GATES, multiGate: false, symbolOnly: false };
+  if (l <= 12) return { level: l, rounds: 12, timePerRound: 16, gates: MED_GATES, multiGate: false, symbolOnly: false };
+  if (l <= 16) return { level: l, rounds: 14, timePerRound: 14, gates: ALL_GATES, multiGate: false, symbolOnly: false };
+  if (l <= 20) return { level: l, rounds: 15, timePerRound: 12, gates: ALL_GATES, multiGate: false, symbolOnly: false };
+  if (l <= 25) return { level: l, rounds: 16, timePerRound: 12, gates: ALL_GATES, multiGate: true, symbolOnly: false };
+  if (l <= 30) return { level: l, rounds: 18, timePerRound: 10, gates: ALL_GATES, multiGate: true, symbolOnly: false };
+  if (l <= 35) return { level: l, rounds: 20, timePerRound: 10, gates: ALL_GATES, multiGate: true, symbolOnly: true };
+  if (l <= 40) return { level: l, rounds: 22, timePerRound: 9, gates: ALL_GATES, multiGate: true, symbolOnly: true };
+  if (l <= 45) return { level: l, rounds: 24, timePerRound: 8, gates: ALL_GATES, multiGate: true, symbolOnly: true };
+  if (l <= 50) return { level: l, rounds: 26, timePerRound: 8, gates: ALL_GATES, multiGate: true, symbolOnly: true };
   const extra = l - 50;
-  return { level: l, rounds: 26 + extra, timePerRound: Math.max(2, 4 - extra * 0.1), gates: ALL_GATES, multiGate: true, symbolOnly: true };
+  return { level: l, rounds: 26 + extra, timePerRound: 8, gates: ALL_GATES, multiGate: true, symbolOnly: true };
 }
 
 export interface BlitzQuestion {
-  text: string;
-  answer: number; // 0 or 1
+  expression: string;
+  variables: string[];
+  rows: { inputs: number[]; output: number }[];
 }
 
 export function generateBlitzQuestion(config: BlitzConfig): BlitzQuestion {
   const gate = config.gates[Math.floor(Math.random() * config.gates.length)];
-  const a = Math.random() > 0.5 ? 1 : 0;
-  const b = Math.random() > 0.5 ? 1 : 0;
+  const variables = config.multiGate || gate !== 'NOT' ? ['A', 'B'] : ['A'];
+  const inputCombinations = variables.length === 1
+    ? [[0], [1]]
+    : [[0, 0], [0, 1], [1, 0], [1, 1]];
+  const formatGate = (type: GateType, left: string, right: string) =>
+    type === 'NOT' ? `NOT ${left}` : `${left} ${type} ${right}`;
 
   if (config.multiGate) {
-    // compound: gate1(A,B) op gate2(B,C)
     const gate2 = ALL_GATES[Math.floor(Math.random() * ALL_GATES.length)];
     const op = Math.random() > 0.5 ? 'AND' : 'OR';
-    const r1 = evaluateGate(gate, a, b);
-    const r2 = evaluateGate(gate2, b, a);
-    const out = evaluateGate(op, r1, r2);
     return {
-      text: `(A ${gate} B) ${op} (B ${gate2} A) where A=${a}, B=${b}`,
-      answer: out,
+      expression: `(${formatGate(gate, 'A', 'B')}) ${op} (${formatGate(gate2, 'B', 'A')})`,
+      variables,
+      rows: inputCombinations.map(inputs => {
+        const [a, b] = inputs;
+        const left = evaluateGate(gate, a, b);
+        const right = evaluateGate(gate2, b, a);
+        return { inputs, output: evaluateGate(op, left, right) };
+      }),
     };
   }
 
-  const needsB = !['NOT'].includes(gate);
-  const out = evaluateGate(gate, a, needsB ? b : undefined);
-  const gateLabel = config.symbolOnly ? gate.substring(0,3) + '⊕' : gate;
-  const text = needsB
-    ? `${gateLabel} gate: A=${a}, B=${b}`
-    : `${gateLabel} gate: A=${a}`;
-  return { text, answer: out };
+  return {
+    expression: formatGate(gate, 'A', 'B'),
+    variables,
+    rows: inputCombinations.map(inputs => ({
+      inputs,
+      output: evaluateGate(gate, inputs[0], inputs[1]),
+    })),
+  };
 }
 
 // ─── Gate Puzzle Level Config ────────────────────────────────────────────────
