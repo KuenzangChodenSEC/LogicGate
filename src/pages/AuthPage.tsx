@@ -77,6 +77,14 @@ function PasswordChecklist({ password }: { password: string }) {
   );
 }
 
+function getAuthErrorMessage(reason: unknown): string {
+  const message = reason instanceof Error ? reason.message : '';
+  if (/email rate limit exceeded|rate limit exceeded|over_email_send_rate_limit|too many requests/i.test(message)) {
+    return 'Supabase has temporarily limited confirmation emails. Wait before retrying; configuring custom SMTP in Supabase can increase email sending limits.';
+  }
+  return message || 'The request could not be completed. Please try again.';
+}
+
 export default function AuthPage() {
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>('login');
   const [identifier, setIdentifier] = useState('');
@@ -86,6 +94,7 @@ export default function AuthPage() {
   const [showPw, setShowPw] = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
   const { login } = useApp();
@@ -129,6 +138,7 @@ export default function AuthPage() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (isSubmitting) return;
     setError('');
 
     const id = identifier.trim().toLowerCase();
@@ -136,7 +146,7 @@ export default function AuthPage() {
       try {
         return getSupabaseClient();
       } catch (reason) {
-        setError(reason instanceof Error ? reason.message : 'Cloud accounts are not configured.');
+        setError(getAuthErrorMessage(reason));
         return null;
       }
     })();
@@ -147,17 +157,24 @@ export default function AuthPage() {
         setError('Please enter your email.');
         return;
       }
-      const { error: resetError } = await client.auth.resetPasswordForEmail(id, {
-        redirectTo: `${window.location.origin}${window.location.pathname}`,
-      });
-      if (resetError) {
-        setError(resetError.message);
-        return;
+      setIsSubmitting(true);
+      try {
+        const { error: resetError } = await client.auth.resetPasswordForEmail(id, {
+          redirectTo: `${window.location.origin}${window.location.pathname}`,
+        });
+        if (resetError) {
+          setError(getAuthErrorMessage(resetError));
+          return;
+        }
+        toast.success('If an account exists for that email, a password reset link has been sent.');
+        setMode('login');
+        setPassword('');
+        setConfirmPassword('');
+      } catch (reason) {
+        setError(getAuthErrorMessage(reason));
+      } finally {
+        setIsSubmitting(false);
       }
-      toast.success('If an account exists for that email, a password reset link has been sent.');
-      setMode('login');
-      setPassword('');
-      setConfirmPassword('');
       return;
     }
 
@@ -170,15 +187,22 @@ export default function AuthPage() {
         setError('New passwords do not match.');
         return;
       }
-      const { error: updateError } = await client.auth.updateUser({ password });
-      if (updateError) {
-        setError(updateError.message);
-        return;
+      setIsSubmitting(true);
+      try {
+        const { error: updateError } = await client.auth.updateUser({ password });
+        if (updateError) {
+          setError(getAuthErrorMessage(updateError));
+          return;
+        }
+        toast.success('Password changed successfully! You can now log in.');
+        setMode('login');
+        setPassword('');
+        setConfirmPassword('');
+      } catch (reason) {
+        setError(getAuthErrorMessage(reason));
+      } finally {
+        setIsSubmitting(false);
       }
-      toast.success('Password changed successfully! You can now log in.');
-      setMode('login');
-      setPassword('');
-      setConfirmPassword('');
       return;
     }
 
@@ -194,6 +218,7 @@ export default function AuthPage() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const legacyUser = getUsers().find(
         (localUser) => localUser.identifier.toLowerCase() === id
@@ -283,8 +308,10 @@ export default function AuthPage() {
       setError(
         message === 'Invalid login credentials'
           ? 'No matching account and password were found in this Supabase project. Confirm your email, password, and that both devices use the same deployed app configuration.'
-          : message || 'Unable to sign in. Please try again.',
+          : getAuthErrorMessage(reason),
       );
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -597,9 +624,13 @@ export default function AuthPage() {
               {/* Submit button */}
               <button
                 type="submit"
-                className="pixel-btn-primary w-full py-3 mt-1 flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+                aria-busy={isSubmitting}
+                className="pixel-btn-primary w-full py-3 mt-1 flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {mode === 'login' ? (
+                {isSubmitting ? (
+                  'Please wait...'
+                ) : mode === 'login' ? (
                   'Enter Learning Hub'
                 ) : mode === 'signup' ? (
                   'Create My Account'
