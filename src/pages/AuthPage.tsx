@@ -22,7 +22,13 @@ import {
   getPasswordRequirements,
   isStrongPassword,
 } from '@/lib/storage';
-import { getAccountProfile, getSupabaseClient, saveAccountProfile, supabase } from '@/lib/supabase';
+import {
+  consumePasswordRecoveryPending,
+  getAccountProfile,
+  getSupabaseClient,
+  saveAccountProfile,
+  supabase,
+} from '@/lib/supabase';
 
 import { useApp } from '@/contexts/AppContext';
 
@@ -86,7 +92,9 @@ function getAuthErrorMessage(reason: unknown): string {
 }
 
 export default function AuthPage() {
-  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>('login');
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>(() =>
+    consumePasswordRecoveryPending() ? 'reset' : 'login'
+  );
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -102,7 +110,10 @@ export default function AuthPage() {
   React.useEffect(() => {
     if (!supabase) return;
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setMode('reset');
+      if (event === 'PASSWORD_RECOVERY') {
+        consumePasswordRecoveryPending();
+        setMode('reset');
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
