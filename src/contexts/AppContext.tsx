@@ -6,7 +6,6 @@ import {
   checkAndAwardBadges, addXP,
 } from '@/lib/storage';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
 
 interface AppContextValue {
   user: User | null;
@@ -53,11 +52,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(() => {
     clearSession();
     setUser(null);
-    if (supabase) {
-      void supabase.auth.signOut().then(({ error }) => {
-        if (error) toast.error(`Could not sign out from your account: ${error.message}`);
-      });
-    }
   }, []);
 
   const updateSettings = useCallback((partial: Partial<Settings>) => {

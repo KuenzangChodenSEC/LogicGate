@@ -8,7 +8,6 @@ import {
   clearSession,
   type User,
 } from '@/lib/storage';
-import { getAccountProfile, getSupabaseClient, saveAccountProfile } from '@/lib/supabase';
 
 export interface Profile {
   id: string;
@@ -51,32 +50,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithUsername = async (username: string, password: string) => {
     try {
-      const email = username.trim().toLowerCase();
-      const client = getSupabaseClient();
-      const { data, error } = await client.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      if (!data.user) throw new Error('Sign-in did not return an account.');
+      const users = getUsers();
+      const found = users.find(u => u.identifier.toLowerCase() === username.toLowerCase());
+      if (!found) throw new Error('Account not found. Please sign up.');
+      if (found.password !== password) throw new Error('Incorrect password.');
 
-      const remoteAccount = await getAccountProfile(data.user.id);
-      const legacyAccount = getUsers().find(user => user.identifier.toLowerCase() === email);
-      const found = remoteAccount
-        ? { ...remoteAccount, identifier: email, password: '' }
-        : {
-            ...(legacyAccount ?? createNewUser(
-              email,
-              '',
-              String(data.user.user_metadata.display_name || email),
-            )),
-            id: data.user.id,
-            identifier: email,
-            password: '',
-          };
-
-      if (!remoteAccount) await saveAccountProfile(found);
-      saveUsers([
-        ...getUsers().filter(user => user.id !== found.id && user.identifier.toLowerCase() !== email),
-        found,
-      ]);
       setSession(found.id);
       setUser(found);
       setProfile({
@@ -93,29 +71,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUpWithUsername = async (username: string, password: string) => {
     try {
-      const email = username.trim().toLowerCase();
-      const client = getSupabaseClient();
-      const { data, error } = await client.auth.signUp({
-        email,
-        password,
-        options: { data: { display_name: username.trim() } },
-      });
-      if (error) throw error;
-      if (!data.session || !data.user) {
-        return { error: new Error('Account created. Confirm your email, then log in.') };
+      const users = getUsers();
+      if (users.some(u => u.identifier.toLowerCase() === username.toLowerCase())) {
+        throw new Error('Account already exists. Please log in.');
       }
 
-      const legacyAccount = getUsers().find(user => user.identifier.toLowerCase() === email);
-      const newUser = legacyAccount
-        ? { ...legacyAccount, id: data.user.id, identifier: email, password: '' }
-        : createNewUser(email, '', username.trim());
-      newUser.id = data.user.id;
-      newUser.password = '';
-      await saveAccountProfile(newUser);
-      saveUsers([
-        ...getUsers().filter(user => user.id !== newUser.id && user.identifier.toLowerCase() !== email),
-        newUser,
-      ]);
+      const newUser = createNewUser(username, password, username);
+      users.push(newUser);
+      saveUsers(users);
       setSession(newUser.id);
       setUser(newUser);
       setProfile({
@@ -131,9 +94,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    const client = getSupabaseClient();
-    const { error } = await client.auth.signOut();
-    if (error) throw error;
     clearSession();
     setUser(null);
     setProfile(null);

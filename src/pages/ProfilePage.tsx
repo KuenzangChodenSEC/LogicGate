@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { updateUser, type User } from '@/lib/storage';
-import { getSupabaseClient } from '@/lib/supabase';
+import { updateUser } from '@/lib/storage';
 import { getLevelFromXP, BADGE_DEFS } from '@/lib/storage';
 import { toast } from 'sonner';
 import { Edit2, Check, X, LogOut } from 'lucide-react';
@@ -31,7 +30,7 @@ export default function ProfilePage() {
     setEditingName(false);
   }
 
-  async function changeProfileImage(event: React.ChangeEvent<HTMLInputElement>, profile: User) {
+  function changeProfileImage(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
     event.target.value = '';
@@ -39,29 +38,27 @@ export default function ProfilePage() {
       toast.error('Please choose an image file.');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Please choose an image smaller than 5 MB.');
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Please choose an image smaller than 2 MB.');
       return;
     }
 
-    try {
-      const client = getSupabaseClient();
-      const { error } = await client.storage
-        .from('avatars')
-        .upload(`${profile.id}/profile-picture`, file, {
-          cacheControl: '0',
-          upsert: true,
-        });
-      if (error) throw error;
-      const { data } = client.storage
-        .from('avatars')
-        .getPublicUrl(`${profile.id}/profile-picture`);
-      updateUser({ ...profile, avatarImage: data.publicUrl });
-      refreshUser();
-      toast.success('Profile picture updated!');
-    } catch (reason) {
-      toast.error(reason instanceof Error ? reason.message : 'Could not upload that image. Please try again.');
-    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== 'string') {
+        toast.error('Could not read that image. Please try another one.');
+        return;
+      }
+      try {
+        updateUser({ ...user!, avatarImage: reader.result });
+        refreshUser();
+        toast.success('Profile picture updated!');
+      } catch {
+        toast.error('Could not save the image in this browser. Choose a smaller image or free up browser storage.');
+      }
+    };
+    reader.onerror = () => toast.error('Could not read that image. Please try again.');
+    reader.readAsDataURL(file);
   }
 
   function selectAvatar(idx: number) {
@@ -128,9 +125,9 @@ export default function ProfilePage() {
       {/* Upload profile image from the device's file picker / gallery / album */}
       <div className="pixel-card p-5 mb-4">
         <h3 className="font-semibold text-foreground text-sm mb-2">Change Profile Picture</h3>
-        <p className="text-muted-foreground text-xs mb-3">Choose an image from your computer, phone gallery, or camera roll (maximum 5 MB).</p>
+        <p className="text-muted-foreground text-xs mb-3">Choose an image from your computer, phone gallery, or photo album (maximum 2 MB).</p>
         <label className="pixel-btn-primary inline-flex px-4 py-2 rounded-lg text-sm mb-4 cursor-pointer">
-          <input type="file" accept="image/*" onChange={(event) => changeProfileImage(event, currentUser)} className="sr-only" />
+          <input type="file" accept="image/*" onChange={changeProfileImage} className="sr-only" />
           Choose Image
         </label>
         <h3 className="font-semibold text-foreground text-sm mb-3">Or Select an Avatar</h3>

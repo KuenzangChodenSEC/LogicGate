@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { updateUser, getPasswordRequirements, isStrongPassword } from '@/lib/storage';
-import { getSupabaseClient } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Moon, Sun, Volume2, VolumeX, RotateCcw, Lock, AlertTriangle } from 'lucide-react';
 
@@ -36,8 +35,12 @@ export default function SettingsPage() {
     setShowResetConfirm(false);
   }
 
-  async function handleChangePassword() {
+  function handleChangePassword() {
     if (!user) return;
+    if (currentPw !== user.password) {
+      toast.error('Current password is incorrect.');
+      return;
+    }
     if (!isStrongPassword(newPw)) {
       toast.error('New password must be at least 8 characters and include uppercase, lowercase, a number, and a special character.');
       return;
@@ -46,26 +49,13 @@ export default function SettingsPage() {
       toast.error('New passwords do not match.');
       return;
     }
-    try {
-      const client = getSupabaseClient();
-      const { error: signInError } = await client.auth.signInWithPassword({
-        email: user.identifier,
-        password: currentPw,
-      });
-      if (signInError) {
-        toast.error('Current password is incorrect.');
-        return;
-      }
-      const { error } = await client.auth.updateUser({ password: newPw });
-      if (error) throw error;
-      toast.success('Password changed successfully!');
-      setChangePwMode(false);
-      setCurrentPw('');
-      setNewPw('');
-      setConfirmPw('');
-    } catch (reason) {
-      toast.error(reason instanceof Error ? reason.message : 'Could not change your password.');
-    }
+    updateUser({ ...user, password: newPw });
+    refreshUser();
+    toast.success('Password changed successfully!');
+    setChangePwMode(false);
+    setCurrentPw('');
+    setNewPw('');
+    setConfirmPw('');
   }
 
   return (

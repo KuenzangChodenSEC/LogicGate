@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import IntersectObserver from '@/components/common/IntersectObserver';
 import { Toaster } from '@/components/ui/sonner';
 import { AppProvider } from '@/contexts/AppContext';
 import AppLayout from '@/components/AppLayout';
 import RouteGuard from '@/components/RouteGuard';
-import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
 
 // Pages
 import AuthPage from './pages/AuthPage';
@@ -30,75 +28,9 @@ import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import NotFound from './pages/NotFound';
 
-function SupabaseAuthCallback() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    let active = true;
-
-    async function completeAuthCallback() {
-      try {
-        if (!supabase) throw new Error('Cloud accounts are not configured.');
-        const { error } = await supabase.auth.getSession();
-        if (error) throw error;
-      } catch {
-        if (active) {
-          toast.error('The email link could not finish sign-in here. Your email may still be verified; try logging in.');
-        }
-      }
-
-      if (active) navigate('/', { replace: true });
-    }
-
-    void completeAuthCallback();
-    return () => { active = false; };
-  }, [navigate]);
-
-  return <p role="status" className="min-h-screen flex items-center justify-center text-muted-foreground">Completing email verification...</p>;
-}
-
 const App: React.FC = () => {
-  const [authReady, setAuthReady] = useState(false);
-  const [authInitError, setAuthInitError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let active = true;
-
-    async function initializeAuth() {
-      try {
-        if (supabase) {
-          const { error } = await supabase.auth.getSession();
-          if (error) throw error;
-        }
-      } catch (reason) {
-        if (active) {
-          setAuthInitError(
-            reason instanceof Error ? reason.message : 'Could not initialize Supabase authentication.',
-          );
-        }
-      } finally {
-        if (active) setAuthReady(true);
-      }
-    }
-
-    void initializeAuth();
-    return () => { active = false; };
-  }, []);
-
-  if (!authReady) {
-    return <p role="status" className="min-h-screen flex items-center justify-center text-muted-foreground">Loading your account...</p>;
-  }
-
-  const hasSupabaseCallbackHash =
-    /(?:access_token|refresh_token|type|error)=/i.test(window.location.hash);
-
   return (
     <AppProvider>
-      {authInitError && (
-        <div role="alert" className="fixed top-3 inset-x-3 z-50 mx-auto max-w-xl rounded-md border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
-          Authentication initialization failed: {authInitError}
-        </div>
-      )}
       <Router>
         <IntersectObserver />
         <Routes>
@@ -129,10 +61,7 @@ const App: React.FC = () => {
             <Route path="/settings"         element={<SettingsPage />} />
           </Route>
 
-          <Route
-            path="*"
-            element={hasSupabaseCallbackHash ? <SupabaseAuthCallback /> : <NotFound />}
-          />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster richColors position="top-right" />
       </Router>

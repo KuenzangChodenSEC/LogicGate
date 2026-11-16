@@ -2,23 +2,12 @@
 <img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
 </div>
 
-# Run and deploy your AI Studio app
+# Logic Gate Learning Hub
 
-This contains everything you need to run your app locally.
+Run the app locally with Node.js:
 
-View your app in AI Studio: https://ai.studio/apps/91ac11bf-b40e-45f0-b1dc-ed7a6cfadf1b
+1. Install dependencies: `npm install`
+2. Optionally set `GEMINI_API_KEY` in `.env.local` to use Gemini AI features.
+3. Start the development server: `npm run dev`
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. The app includes the public client settings for its Supabase project. To use a different project, copy `.env.example` to `.env.local` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. These are public client settings, not service-role secrets.
-3. Run `supabase/migrations/20261117000000_shared_profiles_and_avatars.sql` in the Supabase SQL Editor. Enable email authentication and set the Supabase Site URL and allowed redirect URL to `https://kuenzangchodensec.github.io/LogicGate/` in Authentication → URL Configuration.
-4. Set the `GEMINI_API_KEY` in `.env.local` if you use Gemini AI features.
-5. Run the app:
-   `npm run dev`
-
-Accounts, learning progress, and profile pictures are stored in Supabase so they can be used across devices. To migrate a browser-only account, sign up with the same email on its original device; if email confirmation is enabled, complete confirmation and log in there before using the account on another device. Passwords are handled by Supabase Auth and are not stored in profile data.
+Accounts, learning progress, settings, and profile pictures are stored in this browser's local storage. They are not shared across browsers or devices. Profile pictures can be selected from a desktop or mobile device and must be 2 MB or smaller.

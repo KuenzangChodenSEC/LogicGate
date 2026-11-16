@@ -21,14 +21,8 @@ import {
   checkAndAwardBadges,
   getPasswordRequirements,
   isStrongPassword,
+  updateUser,
 } from '@/lib/storage';
-import {
-  consumePasswordRecoveryPending,
-  getAccountProfile,
-  getSupabaseClient,
-  saveAccountProfile,
-  supabase,
-} from '@/lib/supabase';
 
 import { useApp } from '@/contexts/AppContext';
 
@@ -83,18 +77,8 @@ function PasswordChecklist({ password }: { password: string }) {
   );
 }
 
-function getAuthErrorMessage(reason: unknown): string {
-  const message = reason instanceof Error ? reason.message : '';
-  if (/email rate limit exceeded|rate limit exceeded|over_email_send_rate_limit|too many requests/i.test(message)) {
-    return 'Supabase has temporarily limited confirmation emails. Wait before retrying; configuring custom SMTP in Supabase can increase email sending limits.';
-  }
-  return message || 'The request could not be completed. Please try again.';
-}
-
 export default function AuthPage() {
-  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>(() =>
-    consumePasswordRecoveryPending() ? 'reset' : 'login'
-  );
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>('login');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -107,18 +91,7 @@ export default function AuthPage() {
   const navigate = useNavigate();
   const { login } = useApp();
 
-  React.useEffect(() => {
-    if (!supabase) return;
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        consumePasswordRecoveryPending();
-        setMode('reset');
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  function switchMode(next: 'login' | 'signup' | 'forgot') {
+  function switchMode(next: 'login' | 'signup' | 'forgot' | 'reset') {
     setMode(next);
     setError('');
     setPassword('');
@@ -153,43 +126,29 @@ export default function AuthPage() {
     setError('');
 
     const id = identifier.trim().toLowerCase();
-    const client = (() => {
-      try {
-        return getSupabaseClient();
-      } catch (reason) {
-        setError(getAuthErrorMessage(reason));
-        return null;
-      }
-    })();
-    if (!client) return;
-
     if (mode === 'forgot') {
       if (!id) {
-        setError('Please enter your email.');
+        setError('Please enter your email or phone number.');
         return;
       }
-      setIsSubmitting(true);
-      try {
-        const { error: resetError } = await client.auth.resetPasswordForEmail(id, {
-          redirectTo: `${window.location.origin}${window.location.pathname}`,
-        });
-        if (resetError) {
-          setError(getAuthErrorMessage(resetError));
-          return;
-        }
-        toast.success('If an account exists for that email, a password reset link has been sent.');
-        setMode('login');
-        setPassword('');
-        setConfirmPassword('');
-      } catch (reason) {
-        setError(getAuthErrorMessage(reason));
-      } finally {
-        setIsSubmitting(false);
+      if (!getUsers().some((user) => user.identifier.toLowerCase() === id)) {
+        setError('No account was found in this browser for that email.');
+        return;
       }
+      setMode('reset');
+      setPassword('');
+      setConfirmPassword('');
+      toast.info('Local accounts do not use email. Choose a new password for this browser account.');
       return;
     }
 
     if (mode === 'reset') {
+      const users = getUsers();
+      const account = users.find((user) => user.identifier.toLowerCase() === id);
+      if (!account) {
+        setError('No account was found in this browser for that email.');
+        return;
+      }
       if (!isStrongPassword(password)) {
         setError('Please meet all password requirements below.');
         return;
@@ -198,27 +157,21 @@ export default function AuthPage() {
         setError('New passwords do not match.');
         return;
       }
-      setIsSubmitting(true);
       try {
-        const { error: updateError } = await client.auth.updateUser({ password });
-        if (updateError) {
-          setError(getAuthErrorMessage(updateError));
-          return;
-        }
-        toast.success('Password changed successfully! You can now log in.');
-        setMode('login');
-        setPassword('');
-        setConfirmPassword('');
-      } catch (reason) {
-        setError(getAuthErrorMessage(reason));
-      } finally {
-        setIsSubmitting(false);
+        updateUser({ ...account, password });
+      } catch {
+        setError('Could not save your password in this browser. Check available browser storage and try again.');
+        return;
       }
+      toast.success('Password changed successfully! You can now log in.');
+      setMode('login');
+      setPassword('');
+      setConfirmPassword('');
       return;
     }
 
     if (!id) {
-      setError('Please enter your email.');
+      setError('Please enter your email or phone number.');
       return;
     }
 
@@ -229,11 +182,9 @@ export default function AuthPage() {
       return;
     }
 
-    setIsSubmitting(true);
     try {
-      const legacyUser = getUsers().find(
-        (localUser) => localUser.identifier.toLowerCase() === id
-      );
+      setIsSubmitting(true);
+      const users = getUsers();
 
       if (mode === 'signup') {
         const name = displayName.trim();
@@ -245,82 +196,34 @@ export default function AuthPage() {
           setError('Please meet all password requirements below.');
           return;
         }
-
-        const { data, error: signUpError } = await client.auth.signUp({
-          email: id,
-          password: pw,
-          options: {
-            data: { display_name: name },
-            emailRedirectTo: new URL(import.meta.env.BASE_URL, window.location.origin).toString(),
-          },
-        });
-        if (signUpError) throw signUpError;
-        if (!data.session || !data.user) {
-          toast.success(
-            legacyUser
-              ? 'Check your email, then log in on this device to migrate your saved progress.'
-              : 'Account created. Check your email to confirm it, then log in.',
-          );
-          setMode('login');
+        if (users.some((user) => user.identifier.toLowerCase() === id)) {
+          setError('An account with this email already exists in this browser. Please log in.');
           return;
         }
 
-        const account = legacyUser
-          ? { ...legacyUser, id: data.user.id, identifier: id, password: '' }
-          : createNewUser(id, '', name);
-        account.id = data.user.id;
-        account.password = '';
+        const account = createNewUser(id, pw, name);
         const { user: withBadge } = checkAndAwardBadges(account);
-        await saveAccountProfile(withBadge);
-        saveUsers([
-          ...getUsers().filter((user) =>
-            user.id !== withBadge.id && user.identifier.toLowerCase() !== id
-          ),
-          withBadge,
-        ]);
+        saveUsers([...users, withBadge]);
         login(withBadge);
         toast.success('Account created! Welcome to Logic Gate Learning Hub!');
         navigate('/home');
         return;
       }
 
-      const { data, error: signInError } = await client.auth.signInWithPassword({
-        email: id,
-        password: pw,
-      });
-      if (signInError) throw signInError;
-      if (!data.user) throw new Error('Sign-in did not return an account.');
-
-      const remoteAccount = await getAccountProfile(data.user.id);
-      const account = remoteAccount
-        ? { ...remoteAccount, identifier: id, password: '' }
-        : {
-            ...(legacyUser ?? createNewUser(
-              id,
-              '',
-              String(data.user.user_metadata.display_name || id),
-            )),
-            id: data.user.id,
-            identifier: id,
-            password: '',
-          };
-      if (!remoteAccount) await saveAccountProfile(account);
-      saveUsers([
-        ...getUsers().filter((user) =>
-          user.id !== account.id && user.identifier.toLowerCase() !== id
-        ),
-        account,
-      ]);
+      const account = users.find((user) => user.identifier.toLowerCase() === id);
+      if (!account) {
+        setError('Account not found in this browser. Sign up here to create a local account.');
+        return;
+      }
+      if (account.password !== pw) {
+        setError('Incorrect password.');
+        return;
+      }
       login(account);
       toast.success(`Welcome back, ${account.displayName}!`);
       navigate('/home');
     } catch (reason) {
-      const message = reason instanceof Error ? reason.message : '';
-      setError(
-        message === 'Invalid login credentials'
-          ? 'No matching account and password were found in this Supabase project. Confirm your email, password, and that both devices use the same deployed app configuration.'
-          : getAuthErrorMessage(reason),
-      );
+      setError(reason instanceof Error ? reason.message : 'The request could not be completed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -342,7 +245,7 @@ export default function AuthPage() {
         ? 'Create an account to save your learning progress.'
         : mode === 'reset'
           ? 'Choose a new password for your account.'
-          : 'Enter your email and we will send you a secure reset link.';
+          : 'Enter your account email or phone. Local accounts cannot receive email reset links.';
 
   return (
     <div className="min-h-screen grid lg:grid-cols-[1.08fr_.92fr] bg-background">
@@ -525,20 +428,20 @@ export default function AuthPage() {
                 </div>
               )}
 
-              {/* Email */}
+              {/* Account identifier */}
               {mode !== 'reset' && (
               <div>
                 <label className="block text-sm font-semibold mb-1.5">
-                  Email
+                  Email or Phone
                 </label>
 
                 <input
                   className="pixel-input"
-                  placeholder="email@example.com"
+                  placeholder="email@example.com or phone number"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  autoComplete="email"
-                  type="email"
+                  autoComplete="username"
+                  type="text"
                 />
               </div>
               )}
@@ -677,7 +580,7 @@ export default function AuthPage() {
             )}
 
             <p className="mt-5 text-center text-muted-foreground text-xs">
-              Your account and learning progress sync across your devices.
+              Accounts and learning progress are stored in this browser only and do not sync across devices.
             </p>
           </div>
         </div>
