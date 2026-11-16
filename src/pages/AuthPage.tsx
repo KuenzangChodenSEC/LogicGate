@@ -213,7 +213,10 @@ export default function AuthPage() {
         const { data, error: signUpError } = await client.auth.signUp({
           email: id,
           password: pw,
-          options: { data: { display_name: name } },
+          options: {
+            data: { display_name: name },
+            emailRedirectTo: new URL(import.meta.env.BASE_URL, window.location.origin).toString(),
+          },
         });
         if (signUpError) throw signUpError;
         if (!data.session || !data.user) {

@@ -16,7 +16,7 @@ View your app in AI Studio: https://ai.studio/apps/91ac11bf-b40e-45f0-b1dc-ed7a6
 1. Install dependencies:
    `npm install`
 2. The app includes the public client settings for its Supabase project. To use a different project, copy `.env.example` to `.env.local` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. These are public client settings, not service-role secrets.
-3. Run `supabase/migrations/20261117000000_shared_profiles_and_avatars.sql` in the Supabase SQL Editor. Enable email authentication and configure the app URL and redirect URL in Supabase Authentication settings.
+3. Run `supabase/migrations/20261117000000_shared_profiles_and_avatars.sql` in the Supabase SQL Editor. Enable email authentication and set the Supabase Site URL and allowed redirect URL to `https://kuenzangchodensec.github.io/LogicGate/` in Authentication → URL Configuration.
 4. Set the `GEMINI_API_KEY` in `.env.local` if you use Gemini AI features.
 5. Run the app:
    `npm run dev`
