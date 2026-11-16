@@ -4,8 +4,8 @@ import type { User } from '@/lib/storage';
 const defaultSupabaseUrl = 'https://neyckdjqabvfukwpjfgh.supabase.co';
 const defaultSupabaseAnonKey = 'sb_publishable_wibKVfq1DQSjRA6Af7Bl6g_na4Pnbo6';
 
-const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || defaultSupabaseUrl).trim();
-const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || defaultSupabaseAnonKey).trim();
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim() || defaultSupabaseUrl;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() || defaultSupabaseAnonKey;
 
 export const supabase =
   supabaseUrl && supabaseAnonKey
