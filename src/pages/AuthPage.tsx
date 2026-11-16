@@ -22,6 +22,7 @@ import {
   getPasswordRequirements,
   isStrongPassword,
 } from '@/lib/storage';
+import { getAccountProfile, getSupabaseClient, saveAccountProfile, supabase } from '@/lib/supabase';
 
 import { useApp } from '@/contexts/AppContext';
 
@@ -77,7 +78,7 @@ function PasswordChecklist({ password }: { password: string }) {
 }
 
 export default function AuthPage() {
-  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>('login');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -88,6 +89,14 @@ export default function AuthPage() {
 
   const navigate = useNavigate();
   const { login } = useApp();
+
+  React.useEffect(() => {
+    if (!supabase) return;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') setMode('reset');
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   function switchMode(next: 'login' | 'signup' | 'forgot') {
     setMode(next);
@@ -118,54 +127,63 @@ export default function AuthPage() {
     }
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError('');
 
-    const id = identifier.trim();
+    const id = identifier.trim().toLowerCase();
+    const client = (() => {
+      try {
+        return getSupabaseClient();
+      } catch (reason) {
+        setError(reason instanceof Error ? reason.message : 'Cloud accounts are not configured.');
+        return null;
+      }
+    })();
+    if (!client) return;
 
-    if (!id) {
-      setError('Please enter your email or phone.');
+    if (mode === 'forgot') {
+      if (!id) {
+        setError('Please enter your email.');
+        return;
+      }
+      const { error: resetError } = await client.auth.resetPasswordForEmail(id, {
+        redirectTo: `${window.location.origin}${window.location.pathname}`,
+      });
+      if (resetError) {
+        setError(resetError.message);
+        return;
+      }
+      toast.success('If an account exists for that email, a password reset link has been sent.');
+      setMode('login');
+      setPassword('');
+      setConfirmPassword('');
       return;
     }
 
-    const users = getUsers();
-
-    // Password recovery
-    if (mode === 'forgot') {
-      const foundIndex = users.findIndex(
-        (u) => u.identifier.toLowerCase() === id.toLowerCase()
-      );
-
-      if (foundIndex === -1) {
-        setError('No account was found with that email or phone.');
-        return;
-      }
-
+    if (mode === 'reset') {
       if (!isStrongPassword(password)) {
         setError('Please meet all password requirements below.');
         return;
       }
-
       if (password !== confirmPassword) {
         setError('New passwords do not match.');
         return;
       }
-
-      users[foundIndex] = {
-        ...users[foundIndex],
-        password,
-      };
-
-      saveUsers(users);
-
-      toast.success(
-        'Password changed successfully! You can now log in.'
-      );
-
+      const { error: updateError } = await client.auth.updateUser({ password });
+      if (updateError) {
+        setError(updateError.message);
+        return;
+      }
+      toast.success('Password changed successfully! You can now log in.');
       setMode('login');
       setPassword('');
       setConfirmPassword('');
+      return;
+    }
+
+    if (!id) {
+      setError('Please enter your email.');
       return;
     }
 
@@ -176,61 +194,94 @@ export default function AuthPage() {
       return;
     }
 
-    // Signup
-    if (mode === 'signup') {
-      const name = displayName.trim();
-
-      if (!name) {
-        setError('Please enter your display name.');
-        return;
-      }
-
-      if (!isStrongPassword(pw)) {
-        setError('Please meet all password requirements below.');
-        return;
-      }
-
-      const existingUser = users.find(
-        (u) => u.identifier.toLowerCase() === id.toLowerCase()
+    try {
+      const legacyUser = getUsers().find(
+        (localUser) => localUser.identifier.toLowerCase() === id
       );
 
-      if (existingUser) {
-        setError('Account already exists. Please log in.');
+      if (mode === 'signup') {
+        const name = displayName.trim();
+        if (!name) {
+          setError('Please enter your display name.');
+          return;
+        }
+        if (!isStrongPassword(pw)) {
+          setError('Please meet all password requirements below.');
+          return;
+        }
+
+        const { data, error: signUpError } = await client.auth.signUp({
+          email: id,
+          password: pw,
+          options: { data: { display_name: name } },
+        });
+        if (signUpError) throw signUpError;
+        if (!data.session || !data.user) {
+          toast.success(
+            legacyUser
+              ? 'Check your email, then log in on this device to migrate your saved progress.'
+              : 'Account created. Check your email to confirm it, then log in.',
+          );
+          setMode('login');
+          return;
+        }
+
+        const account = legacyUser
+          ? { ...legacyUser, id: data.user.id, identifier: id, password: '' }
+          : createNewUser(id, '', name);
+        account.id = data.user.id;
+        account.password = '';
+        const { user: withBadge } = checkAndAwardBadges(account);
+        await saveAccountProfile(withBadge);
+        saveUsers([
+          ...getUsers().filter((user) =>
+            user.id !== withBadge.id && user.identifier.toLowerCase() !== id
+          ),
+          withBadge,
+        ]);
+        login(withBadge);
+        toast.success('Account created! Welcome to Logic Gate Learning Hub!');
+        navigate('/home');
         return;
       }
 
-      const newUser = createNewUser(id, pw, name);
-      const { user: withBadge } = checkAndAwardBadges(newUser);
+      const { data, error: signInError } = await client.auth.signInWithPassword({
+        email: id,
+        password: pw,
+      });
+      if (signInError) throw signInError;
+      if (!data.user) throw new Error('Sign-in did not return an account.');
 
-      users.push(withBadge);
-      saveUsers(users);
-      login(withBadge);
-
-      toast.success(
-        'Account created! Welcome to Logic Gate Learning Hub!'
-      );
-
+      const remoteAccount = await getAccountProfile(data.user.id);
+      const account = remoteAccount
+        ? { ...remoteAccount, identifier: id, password: '' }
+        : {
+            ...(legacyUser ?? createNewUser(
+              id,
+              '',
+              String(data.user.user_metadata.display_name || id),
+            )),
+            id: data.user.id,
+            identifier: id,
+            password: '',
+          };
+      if (!remoteAccount) await saveAccountProfile(account);
+      saveUsers([
+        ...getUsers().filter((user) =>
+          user.id !== account.id && user.identifier.toLowerCase() !== id
+        ),
+        account,
+      ]);
+      login(account);
+      toast.success(`Welcome back, ${account.displayName}!`);
       navigate('/home');
-    } else {
-      // Login
-      const found = users.find(
-        (u) => u.identifier.toLowerCase() === id.toLowerCase()
+    } catch (reason) {
+      const message = reason instanceof Error ? reason.message : '';
+      setError(
+        message === 'Invalid login credentials'
+          ? 'No matching account and password were found in this Supabase project. Confirm your email, password, and that both devices use the same deployed app configuration.'
+          : message || 'Unable to sign in. Please try again.',
       );
-
-      if (!found) {
-        setError('Account not found. Please sign up.');
-        return;
-      }
-
-      if (found.password !== pw) {
-        setError('Incorrect password.');
-        return;
-      }
-
-      login(found);
-
-      toast.success(`Welcome back, ${found.displayName}!`);
-      navigate('/home');
     }
   }
 
@@ -239,14 +290,18 @@ export default function AuthPage() {
       ? 'Welcome back'
       : mode === 'signup'
         ? 'Begin your journey'
-        : 'Reset your password';
+        : mode === 'reset'
+          ? 'Choose a new password'
+          : 'Reset your password';
 
   const subtitle =
     mode === 'login'
       ? 'Continue learning where you left off.'
       : mode === 'signup'
         ? 'Create an account to save your learning progress.'
-        : 'Enter your account details and create a new password.';
+        : mode === 'reset'
+          ? 'Choose a new password for your account.'
+          : 'Enter your email and we will send you a secure reset link.';
 
   return (
     <div className="min-h-screen grid lg:grid-cols-[1.08fr_.92fr] bg-background">
@@ -370,7 +425,7 @@ export default function AuthPage() {
           <div className="pixel-card bhutan-frame p-6 sm:p-8 bg-card/95 backdrop-blur-sm">
             <div className="mb-6">
               <p className="text-xs uppercase tracking-[.18em] text-accent font-semibold mb-1">
-                {mode === 'forgot' ? 'Account Recovery' : 'Welcome'}
+                {mode === 'forgot' || mode === 'reset' ? 'Account Recovery' : 'Welcome'}
               </p>
 
               <h2 className="text-2xl font-extrabold">
@@ -383,7 +438,7 @@ export default function AuthPage() {
             </div>
 
             {/* Login and signup tabs */}
-            {mode !== 'forgot' && (
+            {(mode === 'login' || mode === 'signup') && (
               <div className="flex mb-6 rounded-lg p-1 bg-secondary">
                 <button
                   type="button"
@@ -429,10 +484,11 @@ export default function AuthPage() {
                 </div>
               )}
 
-              {/* Email or phone */}
+              {/* Email */}
+              {mode !== 'reset' && (
               <div>
                 <label className="block text-sm font-semibold mb-1.5">
-                  Email or Phone
+                  Email
                 </label>
 
                 <input
@@ -440,11 +496,14 @@ export default function AuthPage() {
                   placeholder="email@example.com"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  autoComplete="username"
+                  autoComplete="email"
+                  type="email"
                 />
               </div>
+              )}
 
               {/* Password */}
+              {mode !== 'forgot' && (
               <div>
                 <label className="block text-sm font-semibold mb-1.5">
                   {mode === 'login' ? 'Password' : 'New Password'}
@@ -474,14 +533,15 @@ export default function AuthPage() {
                   </button>
                 </div>
               </div>
+              )}
 
               {/* Password requirements */}
-              {(mode === 'signup' || mode === 'forgot') && (
+              {(mode === 'signup' || mode === 'reset') && (
                 <PasswordChecklist password={password} />
               )}
 
               {/* Confirm new password during recovery */}
-              {mode === 'forgot' && (
+              {mode === 'reset' && (
                 <div>
                   <label className="block text-sm font-semibold mb-1.5">
                     Confirm New Password
@@ -540,10 +600,12 @@ export default function AuthPage() {
                   'Enter Learning Hub'
                 ) : mode === 'signup' ? (
                   'Create My Account'
+                ) : mode === 'forgot' ? (
+                  'Send Reset Link'
                 ) : (
                   <>
                     <KeyRound size={16} />
-                    Change Password
+                    Save New Password
                   </>
                 )}
               </button>
@@ -570,8 +632,7 @@ export default function AuthPage() {
             )}
 
             <p className="mt-5 text-center text-muted-foreground text-xs">
-              Your learning progress, XP and achievements are saved in
-              this browser.
+              Your account and learning progress sync across your devices.
             </p>
           </div>
         </div>

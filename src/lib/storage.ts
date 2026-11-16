@@ -100,6 +100,12 @@ export function updateUser(updated: User): void {
   if (idx >= 0) users[idx] = updated;
   else users.push(updated);
   saveUsers(users);
+
+  if (supabase) {
+    void saveAccountProfile(updated).catch(() => {
+      toast.error('Your changes could not be synced. Check your connection and try again.');
+    });
+  }
 }
 
 export function getSettings(): Settings {
@@ -130,6 +136,8 @@ export function getXPForNextLevel(level: number): number {
 export const GATE_TOPICS = ['AND', 'OR', 'NOT', 'NAND', 'NOR', 'XOR', 'XNOR'] as const;
 import type { GateType } from './gateData';
 export type { GateType };
+import { toast } from 'sonner';
+import { saveAccountProfile, supabase } from '@/lib/supabase';
 
 export function createNewUser(identifier: string, password: string, displayName: string): User {
   const id = `u_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;

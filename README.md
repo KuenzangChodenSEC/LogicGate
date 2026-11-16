@@ -15,6 +15,10 @@ View your app in AI Studio: https://ai.studio/apps/91ac11bf-b40e-45f0-b1dc-ed7a6
 
 1. Install dependencies:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+2. Copy `.env.example` to `.env.local` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from your Supabase project's API settings. These Vite variables are embedded at build time; every deployed build/device must use the same Supabase project values.
+3. Run `supabase/migrations/20261117000000_shared_profiles_and_avatars.sql` in the Supabase SQL Editor. Enable email authentication and configure the app URL and redirect URL in Supabase Authentication settings.
+4. Set the `GEMINI_API_KEY` in `.env.local` if you use Gemini AI features.
+5. Run the app:
    `npm run dev`
+
+Accounts, learning progress, and profile pictures are stored in Supabase so they can be used across devices. To migrate a browser-only account, sign up with the same email on its original device; if email confirmation is enabled, complete confirmation and log in there before using the account on another device. Passwords are handled by Supabase Auth and are not stored in profile data.

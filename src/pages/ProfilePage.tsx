@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { updateUser } from '@/lib/storage';
+import { updateUser, type User } from '@/lib/storage';
+import { getSupabaseClient } from '@/lib/supabase';
 import { getLevelFromXP, BADGE_DEFS } from '@/lib/storage';
 import { toast } from 'sonner';
 import { Edit2, Check, X, LogOut } from 'lucide-react';
@@ -11,9 +12,9 @@ export default function ProfilePage() {
   const { user, logout, refreshUser } = useApp();
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState('');
-  const imageInputRef = useRef<HTMLInputElement>(null);
+  const currentUser = user;
 
-  if (!user) return null;
+  if (!currentUser) return null;
 
   const level = getLevelFromXP(user.xp);
   const earnedBadges = BADGE_DEFS.filter(b => user.badges.includes(b.id));
@@ -30,32 +31,37 @@ export default function ProfilePage() {
     setEditingName(false);
   }
 
-  function changeProfileImage(event: React.ChangeEvent<HTMLInputElement>) {
+  async function changeProfileImage(event: React.ChangeEvent<HTMLInputElement>, profile: User) {
     const file = event.target.files?.[0];
     if (!file) return;
+    event.target.value = '';
     if (!file.type.startsWith('image/')) {
       toast.error('Please choose an image file.');
-      event.target.value = '';
       return;
     }
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error('Please choose an image smaller than 2 MB.');
-      event.target.value = '';
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Please choose an image smaller than 5 MB.');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result !== 'string') {
-        toast.error('Could not read that image. Please try another one.');
-        return;
-      }
-      updateUser({ ...user!, avatarImage: reader.result });
+
+    try {
+      const client = getSupabaseClient();
+      const { error } = await client.storage
+        .from('avatars')
+        .upload(`${profile.id}/profile-picture`, file, {
+          cacheControl: '0',
+          upsert: true,
+        });
+      if (error) throw error;
+      const { data } = client.storage
+        .from('avatars')
+        .getPublicUrl(`${profile.id}/profile-picture`);
+      updateUser({ ...profile, avatarImage: data.publicUrl });
       refreshUser();
       toast.success('Profile picture updated!');
-    };
-    reader.onerror = () => toast.error('Could not read that image. Please try again.');
-    reader.readAsDataURL(file);
-    event.target.value = '';
+    } catch (reason) {
+      toast.error(reason instanceof Error ? reason.message : 'Could not upload that image. Please try again.');
+    }
   }
 
   function selectAvatar(idx: number) {
@@ -122,11 +128,11 @@ export default function ProfilePage() {
       {/* Upload profile image from the device's file picker / gallery / album */}
       <div className="pixel-card p-5 mb-4">
         <h3 className="font-semibold text-foreground text-sm mb-2">Change Profile Picture</h3>
-        <p className="text-muted-foreground text-xs mb-3">Choose an image from your computer, phone gallery, or photo album (maximum 2 MB).</p>
-        <input ref={imageInputRef} type="file" accept="image/*" onChange={changeProfileImage} className="hidden" />
-        <button onClick={() => imageInputRef.current?.click()} className="pixel-btn-primary px-4 py-2 rounded-lg text-sm mb-4">
+        <p className="text-muted-foreground text-xs mb-3">Choose an image from your computer, phone gallery, or camera roll (maximum 5 MB).</p>
+        <label className="pixel-btn-primary inline-flex px-4 py-2 rounded-lg text-sm mb-4 cursor-pointer">
+          <input type="file" accept="image/*" onChange={(event) => changeProfileImage(event, currentUser)} className="sr-only" />
           Choose Image
-        </button>
+        </label>
         <h3 className="font-semibold text-foreground text-sm mb-3">Or Select an Avatar</h3>
         <div className="flex gap-2 flex-wrap">
           {AVATARS.map((emoji, idx) => (
