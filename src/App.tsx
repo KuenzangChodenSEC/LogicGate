@@ -1,10 +1,12 @@
-import React from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { HashRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import IntersectObserver from '@/components/common/IntersectObserver';
 import { Toaster } from '@/components/ui/sonner';
 import { AppProvider } from '@/contexts/AppContext';
 import AppLayout from '@/components/AppLayout';
 import RouteGuard from '@/components/RouteGuard';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 // Pages
 import AuthPage from './pages/AuthPage';
@@ -28,7 +30,37 @@ import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import NotFound from './pages/NotFound';
 
+function SupabaseAuthCallback() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let active = true;
+
+    async function completeAuthCallback() {
+      try {
+        if (!supabase) throw new Error('Cloud accounts are not configured.');
+        const { error } = await supabase.auth.getSession();
+        if (error) throw error;
+      } catch {
+        if (active) {
+          toast.error('The email link could not finish sign-in here. Your email may still be verified; try logging in.');
+        }
+      }
+
+      if (active) navigate('/', { replace: true });
+    }
+
+    void completeAuthCallback();
+    return () => { active = false; };
+  }, [navigate]);
+
+  return <p role="status" className="min-h-screen flex items-center justify-center text-muted-foreground">Completing email verification...</p>;
+}
+
 const App: React.FC = () => {
+  const hasSupabaseCallbackHash =
+    /(?:access_token|refresh_token|type|error)=/i.test(window.location.hash);
+
   return (
     <AppProvider>
       <Router>
@@ -61,7 +93,10 @@ const App: React.FC = () => {
             <Route path="/settings"         element={<SettingsPage />} />
           </Route>
 
-          <Route path="*" element={<NotFound />} />
+          <Route
+            path="*"
+            element={hasSupabaseCallbackHash ? <SupabaseAuthCallback /> : <NotFound />}
+          />
         </Routes>
         <Toaster richColors position="top-right" />
       </Router>
