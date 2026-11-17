@@ -250,7 +250,7 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen grid lg:grid-cols-[1.08fr_.92fr] bg-background">
       {/* Left panel: Bhutan-inspired design */}
-      <section className="relative hidden lg:flex min-h-screen overflow-hidden bg-[#062d45] text-white">
+      <section className="relative hidden lg:flex min-h-screen overflow-hidden bg-[#3b0d1e] text-white">
         <div
           className="absolute inset-0 bg-cover bg-center scale-105"
           style={{
@@ -259,7 +259,7 @@ export default function AuthPage() {
           }}
         />
 
-        <div className="absolute inset-0 bg-gradient-to-br from-[#062d45]/75 via-[#087f8c]/52 to-[#2ab9b1]/28" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#3b0d1e]/80 via-[#7a1e3f]/60 to-[#d46a7d]/25" />
 
         <div className="relative z-10 flex flex-col justify-between w-full p-10 xl:p-14">
           {/* Logo and brand */}
@@ -293,7 +293,7 @@ export default function AuthPage() {
             <h1 className="text-5xl xl:text-6xl font-extrabold leading-tight">
               Learn logic.
               <br />
-              <span className="text-[#9ef0e1]">
+              <span className="text-[#f7c7d2]">
                 Build circuits.
               </span>
               <br />
@@ -309,9 +309,9 @@ export default function AuthPage() {
               {FEATURES.map((feature) => (
                 <div
                   key={feature.text}
-                  className="rounded-xl bg-[#031b2c]/25 p-3 backdrop-blur-sm"
+                  className="rounded-xl bg-[#260914]/25 p-3 backdrop-blur-sm"
                 >
-                  <div className="text-[#9ef0e1] mb-2">
+                  <div className="text-[#f7c7d2] mb-2">
                     {feature.icon}
                   </div>
 
@@ -324,7 +324,7 @@ export default function AuthPage() {
           </div>
 
           <p className="text-xs text-white/55">
-            A calm, ocean-inspired space for learning and exploration.
+            A warm, maroon-inspired space for learning and exploration.
           </p>
         </div>
       </section>

@@ -44,10 +44,10 @@ export default function HomePage() {
     <div className="max-w-6xl mx-auto px-4 md:px-7 py-6 md:py-8 space-y-10 animate-pixel-fade">
       <section className="relative overflow-hidden rounded-2xl border bhutan-frame min-h-[330px] flex items-center" style={{ borderColor:'hsl(var(--border))' }}>
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage:"url('/LogicGate/images/Bhutan.webp')" }} />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#062d45]/75 via-[#0b5266]/50 to-[#0d7180]/15" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#3b0d1e]/75 via-[#7a1e3f]/55 to-[#d46a7d]/15" />
         <div className="absolute right-6 top-6 opacity-30"><Mountain size={95} /></div>
         <div className="relative z-10 p-7 md:p-10 max-w-2xl text-white">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[.16em] text-[#9ef0e1] mb-4"><Sparkles size={14}/> Bhutan-inspired learning space</div>
+          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[.16em] text-[#f7c7d2] mb-4"><Sparkles size={14}/> Bhutan-inspired learning space</div>
           <p className="text-white/70 text-sm mb-1">Welcome back,</p>
           <h1 className="text-3xl md:text-5xl font-extrabold mb-4">{user.displayName}</h1>
           <p className="text-white/80 leading-7 max-w-xl">Discover logic gates through visual lessons, interactive experiments, practice activities, games and quizzes — all in one learning hub.</p>
@@ -108,7 +108,7 @@ export default function HomePage() {
       {recentBadges.length > 0 && <section><h2 className="text-2xl font-extrabold mb-4">Recent Badges</h2><div className="flex gap-3 flex-wrap">{recentBadges.map(b=><div key={b.id} className="pixel-card px-4 py-3 flex items-center gap-3 badge-earned bg-card/95"><span className="text-2xl">{b.icon}</span><div><div className="font-bold text-sm">{b.name}</div><div className="text-muted-foreground text-xs">{b.desc}</div></div></div>)}</div></section>}
 
       <section className="rounded-2xl overflow-hidden text-white relative min-h-[190px] flex items-center" style={{ backgroundImage:"linear-gradient(90deg,rgba(4,38,61,.72),rgba(8,83,98,.5)), url('/LogicGate/images/images.jpg')", backgroundSize:'cover', backgroundPosition:'center' }}>
-        <div className="p-7 md:p-9"><Lightbulb className="text-[#79e0d0] mb-2" size={24}/><h2 className="text-2xl font-extrabold">Ready to explore?</h2><p className="text-white/75 text-sm mt-1 mb-4">Choose a lesson, simulator, practice task or game and keep building your understanding.</p><Link to="/learn" className="pixel-btn-accent">Continue Learning <ArrowRight size={16} className="ml-2"/></Link></div>
+        <div className="p-7 md:p-9"><Lightbulb className="text-[#f7c7d2] mb-2" size={24}/><h2 className="text-2xl font-extrabold">Ready to explore?</h2><p className="text-white/75 text-sm mt-1 mb-4">Choose a lesson, simulator, practice task or game and keep building your understanding.</p><Link to="/learn" className="pixel-btn-accent">Continue Learning <ArrowRight size={16} className="ml-2"/></Link></div>
       </section>
     </div>
   );
