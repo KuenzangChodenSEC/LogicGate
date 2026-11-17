@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { GateType, evaluateGate } from '@/lib/gateData';
+import { getGateInfo, type GateType } from '@/lib/gateData';
 import { GATE_TOPICS } from '@/lib/storage';
-import GateSVG from '@/components/GateSVG';
 
 type Mode = 'truth' | 'boolean';
 
@@ -13,27 +12,30 @@ export default function PracticePage() {
     : [];
   const [mode, setMode] = useState<Mode>('truth');
   const [gateId, setGateId] = useState<GateType>('AND');
-  const [inputA, setInputA] = useState(0);
-  const [inputB, setInputB] = useState(0);
+  const [targetRow, setTargetRow] = useState(0);
   const [answer, setAnswer] = useState<string>('');
   const [feedback, setFeedback] = useState<{ correct: boolean; msg: string } | null>(null);
   const [sessionCorrect, setSessionCorrect] = useState(0);
   const [sessionTotal, setSessionTotal] = useState(0);
 
-  const isSingleInput = ['NOT'].includes(gateId);
-  const correctOutput = evaluateGate(gateId, inputA, isSingleInput ? undefined : inputB);
+  const truthTable = getGateInfo(gateId).truthTable;
+  const isSingleInput = gateId === 'NOT';
+  const targetTruthRow = truthTable[targetRow] ?? truthTable[0];
 
   function randomize() {
-    setInputA(Math.random() > 0.5 ? 1 : 0);
-    setInputB(Math.random() > 0.5 ? 1 : 0);
+    setTargetRow(Math.floor(Math.random() * truthTable.length));
     setAnswer('');
     setFeedback(null);
   }
 
   function checkAnswer() {
-    if (answer === '') return;
+    if (answer === '' || feedback || !targetTruthRow) return;
     const userOut = parseInt(answer, 10);
+    const correctOutput = targetTruthRow.out;
     const correct = userOut === correctOutput;
+    const inputValues = targetTruthRow.b === undefined
+      ? `A=${targetTruthRow.a}`
+      : `A=${targetTruthRow.a}, B=${targetTruthRow.b}`;
     setSessionTotal(t => t + 1);
     if (correct) {
       setSessionCorrect(c => c + 1);
@@ -42,8 +44,8 @@ export default function PracticePage() {
     setFeedback({
       correct,
       msg: correct
-        ? `Correct! ${gateId} with A=${inputA}${!isSingleInput ? `, B=${inputB}` : ''} → ${correctOutput}`
-        : `Not quite. ${gateId} with A=${inputA}${!isSingleInput ? `, B=${inputB}` : ''} → ${correctOutput}. Try again!`,
+        ? `Correct! ${gateId} outputs ${correctOutput} when ${inputValues}.`
+        : `Not quite. ${gateId} outputs ${correctOutput} when ${inputValues}.`,
     });
   }
 
@@ -113,7 +115,7 @@ export default function PracticePage() {
             <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Choose Gate</label>
             <div className="flex flex-wrap gap-2">
               {GATE_TOPICS.filter(g => user.unlockedTopics.includes(g)).map(g => (
-                <button key={g} onClick={() => { setGateId(g); setFeedback(null); setAnswer(''); }}
+                <button key={g} onClick={() => { setGateId(g); setTargetRow(0); setFeedback(null); setAnswer(''); }}
                   className={`px-3 py-1.5 text-xs rounded border font-medium transition-colors ${gateId === g ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border hover:border-primary'}`}>
                   {g}
                 </button>
@@ -121,20 +123,39 @@ export default function PracticePage() {
             </div>
           </div>
 
-          <div className="bg-muted rounded-lg border border-border p-5 text-center">
-            <div className="flex justify-center mb-3">
-              <GateSVG gate={gateId} size={70} active inputA={inputA} inputB={isSingleInput ? undefined : inputB} />
-            </div>
-            <p className="text-foreground text-sm font-medium mb-1">
-              {gateId} gate: A = <span className="text-primary font-bold">{inputA}</span>
-              {!isSingleInput && <>, B = <span className="text-primary font-bold">{inputB}</span></>}
+          <div className="rounded-lg border border-border p-5">
+            <p className="text-foreground text-sm font-medium mb-3 text-center">
+              Complete the missing output in the {gateId} truth table.
             </p>
-            <p className="text-muted-foreground text-xs">What is the output (Y)?</p>
+            <div className="overflow-x-auto">
+              <table className="truth-table w-full">
+                <thead>
+                  <tr><th>A</th>{!isSingleInput && <th>B</th>}<th>Y</th></tr>
+                </thead>
+                <tbody>
+                  {truthTable.map((row, index) => {
+                    const isTarget = index === targetRow;
+                    return (
+                      <tr key={`${row.a}-${row.b ?? ''}`} className={isTarget ? 'highlighted' : ''}>
+                        <td>{row.a}</td>
+                        {!isSingleInput && <td>{row.b}</td>}
+                        <td className="font-bold">
+                          {isTarget ? (feedback ? row.out : answer || '?') : row.out}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-muted-foreground text-xs mt-3 text-center">
+              Choose the missing Y value for the highlighted input row.
+            </p>
           </div>
 
           <div className="flex gap-4 justify-center">
             {['0', '1'].map(val => (
-              <button key={val} onClick={() => setAnswer(val)}
+              <button key={val} onClick={() => setAnswer(val)} disabled={!!feedback}
                 className={`w-20 py-4 text-2xl font-bold rounded-lg border-2 transition-colors ${
                   answer === val ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-foreground border-border hover:border-primary'
                 }`}>
@@ -151,7 +172,7 @@ export default function PracticePage() {
           )}
 
           <div className="flex gap-3">
-            <button onClick={checkAnswer} disabled={!answer}
+            <button onClick={checkAnswer} disabled={!answer || !!feedback}
               className="pixel-btn-primary px-6 py-2 text-sm disabled:opacity-50">
               Check
             </button>
