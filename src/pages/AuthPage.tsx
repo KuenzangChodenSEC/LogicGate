@@ -250,7 +250,7 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen grid lg:grid-cols-[1.08fr_.92fr] bg-background">
       {/* Left panel: Bhutan-inspired design */}
-      <section className="relative hidden lg:flex min-h-screen overflow-hidden bg-[#5f1d1b] text-white">
+      <section className="relative hidden lg:flex min-h-screen overflow-hidden bg-[#062d45] text-white">
         <div
           className="absolute inset-0 bg-cover bg-center scale-105"
           style={{
@@ -259,9 +259,7 @@ export default function AuthPage() {
           }}
         />
 
-        <div className="absolute inset-0 bg-gradient-to-br from-[#4b1515]/90 via-[#6f2520]/70 to-[#a86c21]/55" />
-
-        <div className="absolute inset-0 opacity-25 bhutan-pattern" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#062d45]/75 via-[#087f8c]/52 to-[#2ab9b1]/28" />
 
         <div className="relative z-10 flex flex-col justify-between w-full p-10 xl:p-14">
           {/* Logo and brand */}
@@ -287,7 +285,7 @@ export default function AuthPage() {
 
           {/* Introduction */}
           <div className="max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-3 py-1.5 text-xs mb-5">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs mb-5">
               <Sparkles size={14} />
               A Bhutan-inspired learning experience
             </div>
@@ -295,7 +293,7 @@ export default function AuthPage() {
             <h1 className="text-5xl xl:text-6xl font-extrabold leading-tight">
               Learn logic.
               <br />
-              <span className="text-[#e8b34c]">
+              <span className="text-[#9ef0e1]">
                 Build circuits.
               </span>
               <br />
@@ -311,9 +309,9 @@ export default function AuthPage() {
               {FEATURES.map((feature) => (
                 <div
                   key={feature.text}
-                  className="rounded-xl bg-black/20 border border-white/15 p-3 backdrop-blur-sm"
+                  className="rounded-xl bg-[#031b2c]/25 p-3 backdrop-blur-sm"
                 >
-                  <div className="text-[#e8b34c] mb-2">
+                  <div className="text-[#9ef0e1] mb-2">
                     {feature.icon}
                   </div>
 
@@ -326,8 +324,7 @@ export default function AuthPage() {
           </div>
 
           <p className="text-xs text-white/55">
-            A learning interface inspired by Bhutanese colours,
-            landscapes and architectural details.
+            A calm, ocean-inspired space for learning and exploration.
           </p>
         </div>
       </section>
@@ -341,8 +338,7 @@ export default function AuthPage() {
               "url('https://commons.wikimedia.org/wiki/Special:Redirect/file/Window%20Samten-Ch%C3%B6ling%20Tsakaling.jpg')",
           }}
         />
-
-        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#5f1d1b] via-[#d99a2b] to-[#5f1d1b]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 pointer-events-none" />
 
         {/* Keep all right-panel content inside this wrapper */}
         <div className="relative z-10 w-full max-w-md">

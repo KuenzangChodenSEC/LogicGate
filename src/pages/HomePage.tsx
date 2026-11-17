@@ -44,11 +44,10 @@ export default function HomePage() {
     <div className="max-w-6xl mx-auto px-4 md:px-7 py-6 md:py-8 space-y-10 animate-pixel-fade">
       <section className="relative overflow-hidden rounded-2xl border bhutan-frame min-h-[330px] flex items-center" style={{ borderColor:'hsl(var(--border))' }}>
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage:"url('/LogicGate/images/Bhutan.webp')" }} />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#4f1716]/95 via-[#6d2720]/78 to-[#6d2720]/25" />
-        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#5f1d1b] via-[#e0a22c] to-[#5f1d1b]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#062d45]/75 via-[#0b5266]/50 to-[#0d7180]/15" />
         <div className="absolute right-6 top-6 opacity-30"><Mountain size={95} /></div>
         <div className="relative z-10 p-7 md:p-10 max-w-2xl text-white">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[.16em] text-[#f0c15b] mb-4"><Sparkles size={14}/> Bhutan-inspired learning space</div>
+          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[.16em] text-[#9ef0e1] mb-4"><Sparkles size={14}/> Bhutan-inspired learning space</div>
           <p className="text-white/70 text-sm mb-1">Welcome back,</p>
           <h1 className="text-3xl md:text-5xl font-extrabold mb-4">{user.displayName}</h1>
           <p className="text-white/80 leading-7 max-w-xl">Discover logic gates through visual lessons, interactive experiments, practice activities, games and quizzes — all in one learning hub.</p>
@@ -83,7 +82,7 @@ export default function HomePage() {
               {HOW_IT_WORKS.map(step => <div key={step.n} className="flex gap-3"><div className="shrink-0 w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs">{step.n}</div><div><div className="flex items-center gap-2 font-bold text-sm">{step.icon}{step.title}</div><p className="text-xs text-muted-foreground mt-1 leading-5">{step.text}</p></div></div>)}
             </div>
           </div>
-          <div className="min-h-[300px] bg-cover bg-center" style={{ backgroundImage:"linear-gradient(rgba(94,29,27,.35),rgba(94,29,27,.5)), url('/LogicGate/images/edu.jpg')" }} />
+          <div className="min-h-[300px] bg-cover bg-center" style={{ backgroundImage:"linear-gradient(rgba(6,45,69,.24),rgba(8,78,94,.38)), url('/LogicGate/images/edu.jpg')" }} />
         </div>
       </section>
 
@@ -108,8 +107,8 @@ export default function HomePage() {
 
       {recentBadges.length > 0 && <section><h2 className="text-2xl font-extrabold mb-4">Recent Badges</h2><div className="flex gap-3 flex-wrap">{recentBadges.map(b=><div key={b.id} className="pixel-card px-4 py-3 flex items-center gap-3 badge-earned bg-card/95"><span className="text-2xl">{b.icon}</span><div><div className="font-bold text-sm">{b.name}</div><div className="text-muted-foreground text-xs">{b.desc}</div></div></div>)}</div></section>}
 
-      <section className="rounded-2xl overflow-hidden text-white relative min-h-[190px] flex items-center" style={{ backgroundImage:"linear-gradient(90deg,rgba(79,23,22,.95),rgba(101,42,31,.75)), url('/LogicGate/images/images.jpg')", backgroundSize:'cover', backgroundPosition:'center' }}>
-        <div className="p-7 md:p-9"><Lightbulb className="text-[#e8b34c] mb-2" size={24}/><h2 className="text-2xl font-extrabold">Ready to explore?</h2><p className="text-white/75 text-sm mt-1 mb-4">Choose a lesson, simulator, practice task or game and keep building your understanding.</p><Link to="/learn" className="pixel-btn-accent">Continue Learning <ArrowRight size={16} className="ml-2"/></Link></div>
+      <section className="rounded-2xl overflow-hidden text-white relative min-h-[190px] flex items-center" style={{ backgroundImage:"linear-gradient(90deg,rgba(4,38,61,.72),rgba(8,83,98,.5)), url('/LogicGate/images/images.jpg')", backgroundSize:'cover', backgroundPosition:'center' }}>
+        <div className="p-7 md:p-9"><Lightbulb className="text-[#79e0d0] mb-2" size={24}/><h2 className="text-2xl font-extrabold">Ready to explore?</h2><p className="text-white/75 text-sm mt-1 mb-4">Choose a lesson, simulator, practice task or game and keep building your understanding.</p><Link to="/learn" className="pixel-btn-accent">Continue Learning <ArrowRight size={16} className="ml-2"/></Link></div>
       </section>
     </div>
   );
