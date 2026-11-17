@@ -128,18 +128,25 @@ export default function PracticePage() {
               Complete the missing output in the {gateId} truth table.
             </p>
             <div className="overflow-x-auto">
-              <table className="truth-table w-full">
+              <table className="mx-auto w-full max-w-sm table-fixed border-collapse text-center">
                 <thead>
-                  <tr><th>A</th>{!isSingleInput && <th>B</th>}<th>Y</th></tr>
+                  <tr className="border-b border-border text-sm text-muted-foreground">
+                    <th scope="col" className="px-4 py-2 font-semibold">A</th>
+                    {!isSingleInput && <th scope="col" className="px-4 py-2 font-semibold">B</th>}
+                    <th scope="col" className="px-4 py-2 font-semibold">Y</th>
+                  </tr>
                 </thead>
                 <tbody>
                   {truthTable.map((row, index) => {
                     const isTarget = index === targetRow;
                     return (
-                      <tr key={`${row.a}-${row.b ?? ''}`} className={isTarget ? 'highlighted' : ''}>
-                        <td>{row.a}</td>
-                        {!isSingleInput && <td>{row.b}</td>}
-                        <td className="font-bold">
+                      <tr
+                        key={`${row.a}-${row.b ?? ''}`}
+                        className={`border-b border-border/60 last:border-0 ${isTarget ? 'bg-primary/10' : ''}`}
+                      >
+                        <td className={`px-4 py-2 ${isTarget ? 'font-bold text-primary' : ''}`}>{row.a}</td>
+                        {!isSingleInput && <td className={`px-4 py-2 ${isTarget ? 'font-bold text-primary' : ''}`}>{row.b}</td>}
+                        <td className={`px-4 py-2 font-bold ${isTarget ? 'text-primary' : ''}`}>
                           {isTarget ? (feedback ? row.out : answer || '?') : row.out}
                         </td>
                       </tr>
